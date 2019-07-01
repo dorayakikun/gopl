@@ -6,9 +6,9 @@ import (
 )
 
 func TestPopCount(t *testing.T) {
-	ret := PopCount(19)
-	if ret != 3 {
-		t.Errorf("予期した値: 3、実際の値: %d", ret)
+	ret := PopCount(10)
+	if ret != 2 {
+		t.Errorf("予期した値: 2、実際の値: %d", ret)
 	}
 }
 
