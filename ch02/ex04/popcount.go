@@ -10,10 +10,10 @@ func init() {
 
 func PopCount(x uint64) int {
 	var ret int
-	for i := 0; i < 64; i++ {
-		if pc[byte(x>>(uint(i)))] == 1 {
-			ret++
-		}
+	for i := uint64(0); i < 64; i++ {
+		// 最下位ビットを比べる
+		ret += int(x & 1)
+		x >>= 1
 	}
 	return ret
 }
