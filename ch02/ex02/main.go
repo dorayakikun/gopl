@@ -15,7 +15,6 @@ var mode = flag.String("mode", "temperature", "Type of unit to convert")
 
 func main() {
 	flag.Parse()
-	fmt.Println(*mode)
 	if len(flag.Args()) == 0 {
 		input := bufio.NewScanner(os.Stdin)
 		for input.Scan() {
