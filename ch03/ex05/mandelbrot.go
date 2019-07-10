@@ -33,7 +33,8 @@ func mandelbrot(z complex128) color.Color {
 	for n := uint8(0); n < iterations; n++ {
 		v = v*v + z
 		if cmplx.Abs(v) > 2 {
-			return color.Gray{255 - contrast*n}
+			// 実部・虚部を正規化した上で、0~255に収まるようにしてCb/Crにそれぞれ実部・虚部を埋め込む
+			return color.YCbCr{255 - contrast*n, uint8((real(v) + 2) / 4 * 255), uint8((imag(v) + 2) / 4 * 255)}
 		}
 	}
 	return color.Black
