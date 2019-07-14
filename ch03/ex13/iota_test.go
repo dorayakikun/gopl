@@ -31,14 +31,14 @@ func Test(t *testing.T) {
 	if PB != expected5 {
 		t.Errorf("%d want %d", PB, expected5)
 	}
-	// ここからintがoverflowするのでfloat64として受ける
+	// ここからintがoverflowするので、溢れないように除算した結果と比較する
 	if EB/1000 != expected5 {
 		t.Errorf("EB/1000 want %d", expected5)
 	}
 	if ZB/1000000 != expected5 {
-		t.Errorf("ZB/1000 want %d", expected5)
+		t.Errorf("ZB/1000000 want %d", expected5)
 	}
 	if YB/1000000000 != expected5 {
-		t.Errorf("YB/1000 want %d", expected5)
+		t.Errorf("YB/1000000 want %d", expected5)
 	}
 }
