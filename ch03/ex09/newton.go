@@ -67,9 +67,9 @@ func fractal(w http.ResponseWriter, ox float64, oy float64, zoom float64) {
 	var newYmax float64 = ymax / zoom
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 	for py := 0; py < height; py++ {
-		y := float64(py)/height*(newYmax-newYmin-oy) + newYmin
+		y := float64(py)/height*(newYmax-newYmin) + newYmin + oy
 		for px := 0; px < width; px++ {
-			x := float64(px)/width*(newXmax-newXmin-ox) + newXmin
+			x := float64(px)/width*(newXmax-newXmin) + newXmin + ox
 			z := complex(x, y)
 			img.Set(px, py, newton(z, iterations))
 		}
