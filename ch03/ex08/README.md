@@ -1,0 +1,1 @@
+7/14 時点で、big.Float, big.Ratが0divideで落ちてしまう
