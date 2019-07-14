@@ -32,13 +32,13 @@ func Test(t *testing.T) {
 		t.Errorf("%d want %d", PB, expected5)
 	}
 	// ここからintがoverflowするのでfloat64として受ける
-	if EB != expected6 {
-		t.Errorf("%g want %g", EB, expected6)
+	if EB/1000 != expected5 {
+		t.Errorf("EB/1000 want %d", expected5)
 	}
-	if ZB != expected7 {
-		t.Errorf("%g want %g", ZB, expected7)
+	if ZB/1000000 != expected5 {
+		t.Errorf("ZB/1000 want %d", expected5)
 	}
-	if YB != expected8 {
-		t.Errorf("%g want %g", YB, expected8)
+	if YB/1000000000 != expected5 {
+		t.Errorf("YB/1000 want %d", expected5)
 	}
 }
