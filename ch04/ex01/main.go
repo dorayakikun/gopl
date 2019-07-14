@@ -21,10 +21,10 @@ func main() {
 	// b sha256
 	bs := sha256.Sum256([]byte(b))
 
-	var count int
+	var diff int
 	for i := range as {
 		// xorでa, bのアンマッチをあぶり出し
-		count += bits.OnesCount8(as[i] ^ bs[i])
+		diff += bits.OnesCount8(as[i] ^ bs[i])
 	}
-	fmt.Printf("(%q, %q) diff is %d", a, b, count)
+	fmt.Printf("(%q, %q) diff is %d", a, b, diff)
 }
