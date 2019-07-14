@@ -3,16 +3,9 @@ package main
 import (
 	"crypto/sha256"
 	"fmt"
+	"math/bits"
 	"os"
 )
-
-var pc [256]byte
-
-func init() {
-	for i := range pc {
-		pc[i] = pc[i/2] + byte(i&1)
-	}
-}
 
 func main() {
 	args := os.Args
@@ -31,7 +24,7 @@ func main() {
 	var count int
 	for i := range as {
 		// xorでa, bのアンマッチをあぶり出し
-		count += int(pc[as[i]^bs[i]])
+		count += bits.OnesCount8(as[i] ^ bs[i])
 	}
 	fmt.Printf("(%q, %q) diff is %d", a, b, count)
 }
