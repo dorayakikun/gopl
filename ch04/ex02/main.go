@@ -20,8 +20,6 @@ func main() {
 		os.Exit(2)
 	}
 	input := bufio.NewScanner(os.Stdin)
-
-	fmt.Println("waiting for input...")
 	for input.Scan() {
 		s := input.Text()
 		switch *mode {
@@ -35,6 +33,5 @@ func main() {
 			fmt.Printf("mode is %d want 0-2\n", *mode)
 			os.Exit(2)
 		}
-		fmt.Println("===\nwaiting for input...")
 	}
 }
