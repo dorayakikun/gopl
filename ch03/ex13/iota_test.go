@@ -10,9 +10,6 @@ const (
 	expected3 = 1000000000
 	expected4 = 1000000000000
 	expected5 = 1000000000000000
-	expected6 = 1e18
-	expected7 = 1e21
-	expected8 = 1e24
 )
 
 func Test(t *testing.T) {
