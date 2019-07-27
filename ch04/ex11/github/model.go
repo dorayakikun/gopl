@@ -18,9 +18,9 @@ type PatchIssueParameter struct {
 
 type IssueResponse struct {
 	Number int
-	Sate string
-	Title string
-	Body string
+	State  string
+	Title  string
+	Body   string
 	Labels []Label
 }
 
