@@ -2,18 +2,23 @@ package main
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"time"
 	"z/github"
 )
 
 func main() {
+	if len(os.Args) != 2{
+		fmt.Println("usage: go run main.go <KEYWORD>")
+		os.Exit(2)
+	}
+
 	result, err := github.SearchIssues(os.Args[1:])
 	if err != nil {
-		log.Fatal(err)
+		fmt.Printf("search failed: %s", err.Error())
+		os.Exit(1)
 	}
-	fmt.Printf("%d issues:\n", result.TotalCount)
+	fmt.Printf("total count:%d\n", result.TotalCount)
 
 	dateRanges := make(map[string][]*github.Issue)
 	for _, item := range result.Items {

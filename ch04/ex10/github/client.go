@@ -3,6 +3,7 @@ package github
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/pkg/errors"
 	"net/http"
 	"net/url"
 	"strings"
@@ -11,18 +12,16 @@ import (
 func SearchIssues(terms []string) (*IssuesSearchResult, error) {
 	q := url.QueryEscape(strings.Join(terms, " "))
 	resp, err := http.Get(IssuesURL + "?q=" + q)
+	defer resp.Body.Close()
 	if err != nil {
-		return nil, err
+		return nil, errors.Wrap(err, "fetch failed")
 	}
 	if resp.StatusCode != http.StatusOK {
-		resp.Body.Close()
 		return nil, fmt.Errorf("search query failed: %s", resp.Status)
 	}
 	var result IssuesSearchResult
 	if err := json.NewDecoder(resp.Body).Decode(&result); err != nil {
-		resp.Body.Close()
-		return nil, err
+		return nil, errors.Wrap(err, "decode failed")
 	}
-	resp.Body.Close()
 	return &result, nil
 }
