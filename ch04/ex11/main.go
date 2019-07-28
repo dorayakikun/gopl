@@ -15,6 +15,7 @@ func main() {
 	token := os.Getenv("GITHUB_PERSONAL_ACCESS_TOKEN")
 	if token == "" {
 		fmt.Println("missing Personal Access Token")
+		fmt.Println("export GITHUB_PERSONAL_ACCESS_TOKEN=<YOUR ACCESS TOKEN>")
 		os.Exit(2)
 	}
 
@@ -53,7 +54,7 @@ func main() {
 	if create.Parsed() {
 		// go run main.go create [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO>
 		if len(create.Args()) != 2 {
-			fmt.Printf("missing args\nusage: app create [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO>\n")
+			fmt.Printf("missing args\nusage: go run main.go create [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO>\n")
 			os.Exit(2)
 		}
 
@@ -121,7 +122,7 @@ func main() {
 	if get.Parsed() {
 		// go run main.go get <OWNER> <REPO> <ISSUE_NUMBER>
 		if len(get.Args()) != 3 {
-			fmt.Printf("missing args\nusage: app get <OWNER> <REPO> <ISSUE_NUMBER>\n")
+			fmt.Printf("missing args\nusage: go run main.go get <OWNER> <REPO> <ISSUE_NUMBER>\n")
 			os.Exit(2)
 		}
 		err := github.GetIssue(get.Arg(0), get.Arg(1), get.Arg(2), token)
@@ -133,7 +134,7 @@ func main() {
 	if edit.Parsed() {
 		// go run main.go edit [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO> <ISSUE_NUMBER>
 		if len(edit.Args()) != 3 {
-			fmt.Printf("missing args\nusage: app edit [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO> <ISSUE_NUMBER>\n")
+			fmt.Printf("missing args\nusage: go run main.go edit [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO> <ISSUE_NUMBER>\n")
 			os.Exit(2)
 		}
 		var title string
@@ -199,7 +200,7 @@ func main() {
 	if close.Parsed() {
 		// go run main.go close <OWNER> <REPO> <ISSUE_NUMBER>
 		if len(close.Args()) != 3 {
-			fmt.Printf("missing args\nusage: app close <OWNER> <REPO> <ISSUE_NUMBER>\n")
+			fmt.Printf("missing args\nusage: go run main.go close <OWNER> <REPO> <ISSUE_NUMBER>\n")
 			os.Exit(2)
 		}
 		state := "closed"
@@ -212,8 +213,8 @@ func main() {
 }
 
 func showUsage() {
-	fmt.Println("usage: app create [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO>")
-	fmt.Println("       app get <OWNER> <REPO> <ISSUE_NUMBER>")
-	fmt.Println("       app edit [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO> <ISSUE_NUMBER>")
-	fmt.Println("       app close <OWNER> <REPO> <ISSUE_NUMBER>")
+	fmt.Println("usage: go run main.go create [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO>")
+	fmt.Println("       go run main.go get <OWNER> <REPO> <ISSUE_NUMBER>")
+	fmt.Println("       go run main.go edit [-m <MESSAGE>] [-l <LABELS>] <OWNER> <REPO> <ISSUE_NUMBER>")
+	fmt.Println("       go run main.go close <OWNER> <REPO> <ISSUE_NUMBER>")
 }
