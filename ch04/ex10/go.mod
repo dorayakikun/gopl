@@ -1,3 +1,3 @@
-module github.com/dorayakikun/go-study/ch04/ex10
+module z
 
 go 1.12

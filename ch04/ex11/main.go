@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"github.com/dorayakikun/go-study/ch04/ex11/github"
 	"io/ioutil"
 	"os"
 	"os/exec"
 	"strings"
 	"time"
+	"z/github"
 )
 
 func main() {

@@ -1,11 +1,11 @@
 package main
 
 import (
-	"./github"
 	"fmt"
 	"log"
 	"os"
 	"time"
+	"z/github"
 )
 
 func main() {
