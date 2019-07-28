@@ -1,1 +1,1 @@
-7/14 時点で、big.Float, big.Ratが0divideで落ちてしまう
+7/28 時点で、big.Ratが真っ黒
