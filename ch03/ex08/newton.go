@@ -38,8 +38,8 @@ func main() {
 				img.Set(px, py, calc.NewtonBigFloat(z))
 			case 3:
 				z := &calc.ComplexRat{
-					Real: big.NewRat(int64(x), 1),
-					Imag: big.NewRat(int64(y), 1),
+					Real: new(big.Rat).SetFloat64(x),
+					Imag: new(big.Rat).SetFloat64(y),
 				}
 				img.Set(px, py, calc.NewtonRat(z))
 			}

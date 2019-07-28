@@ -82,21 +82,10 @@ func (c *ComplexRat) Div(other *ComplexRat) *ComplexRat {
 	}
 }
 func (c *ComplexRat) Abs() float64 {
-	zero := big.NewRat(0, 10)
-
-	p, q := c.Real, c.Imag
-	p, q = p.Abs(p), q.Abs(q)
-	if p.Cmp(q) < 0 {
-		p, q = q, p
-	}
-	if p.Cmp(zero) == 0 {
-		return 0
-	}
 	// TODO math.Hypot(p, q)のシュミレートをどうするか
-
-	fp, _ := p.Float64()
-	fq, _ := q.Float64()
-	return math.Hypot(fp, fq)
+	p, _ := c.Real.Float64()
+	q, _ := c.Imag.Float64()
+	return math.Hypot(p, q)
 }
 
 // z^4 - 1 = 0を求める関数
@@ -120,21 +109,18 @@ func dfRat(x *ComplexRat) *ComplexRat {
 func NewtonRat(z *ComplexRat) color.Color {
 	const iterations = 5
 	const contrast = 15
-
+	// 1
+	one := &ComplexRat{Real: big.NewRat(1, 1), Imag: big.NewRat(0, 1)}
+	// -1
+	none := &ComplexRat{Real: big.NewRat(-1, 1), Imag: big.NewRat(0, 1)}
+	// i
+	i := &ComplexRat{Real: big.NewRat(0, 1), Imag: big.NewRat(1, 1)}
+	// -i
+	ni := &ComplexRat{Real: big.NewRat(0, 1), Imag: big.NewRat(-1, 1)}
 	for n := uint8(0); n < iterations; n++ {
 		// ニュートン法のアルゴリズムは右記を参照. https://algorithm.joho.info/mathematics/newton-method-program/
 		// 漸化式 αn - f(αn) / df(αn)
 		z = z.Sub(fRat(z).Div(dfRat(z)))
-
-		// 1
-		one := &ComplexRat{Real: big.NewRat(1, 1), Imag: big.NewRat(0, 1)}
-		// -1
-		none := &ComplexRat{Real: big.NewRat(-1, 1), Imag: big.NewRat(0, 1)}
-		// i
-		i := &ComplexRat{Real: big.NewRat(0, 1), Imag: big.NewRat(1, 1)}
-		// -i
-		ni := &ComplexRat{Real: big.NewRat(0, 1), Imag: big.NewRat(-1, 1)}
-
 		if one.Sub(z).Abs() < epsilon {
 			return color.RGBA{R: contrast * n, G: 0, B: 0, A: 255}
 		} else if none.Sub(z).Abs() < epsilon {
