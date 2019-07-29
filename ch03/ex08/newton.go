@@ -8,6 +8,7 @@ import (
 	"image/png"
 	"math/big"
 	"os"
+	"sync"
 	"z/calc"
 )
 
@@ -22,29 +23,37 @@ func main() {
 		width, height          = 1024, 1024
 	)
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
+
+	wg := &sync.WaitGroup{}
 	for py := 0; py < height; py++ {
 		y := float64(py)/height*(ymax-ymin) + ymin
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
-			switch *mode {
-			case 0:
-				z := complex(x, y)
-				img.Set(px, py, calc.Newton(z))
-			case 1:
-				z := complex64(complex(x, y))
-				img.Set(px, py, calc.NewtonC64(z))
-			case 2:
-				z := &calc.ComplexBigFloat{Real: big.NewFloat(x), Imag: big.NewFloat(y)}
-				img.Set(px, py, calc.NewtonBigFloat(z))
-			case 3:
-				z := &calc.ComplexRat{
-					Real: new(big.Rat).SetFloat64(x),
-					Imag: new(big.Rat).SetFloat64(y),
+			wg.Add(1)
+			go func(x, y float64, px, py int) {
+				fmt.Fprintf(os.Stderr, "px %d py %d\n", px, py)
+				switch *mode {
+				case 0:
+					z := complex(x, y)
+					img.Set(px, py, calc.Newton(z))
+				case 1:
+					z := complex64(complex(x, y))
+					img.Set(px, py, calc.NewtonC64(z))
+				case 2:
+					z := &calc.ComplexBigFloat{Real: big.NewFloat(x), Imag: big.NewFloat(y)}
+					img.Set(px, py, calc.NewtonBigFloat(z))
+				case 3:
+					z := &calc.ComplexRat{
+						Real: new(big.Rat).SetFloat64(x),
+						Imag: new(big.Rat).SetFloat64(y),
+					}
+					img.Set(px, py, calc.NewtonRat(z))
 				}
-				img.Set(px, py, calc.NewtonRat(z))
-			}
+				wg.Done()
+			}(x, y, px, py)
 		}
 	}
+	wg.Wait()
 	// new image
 	nimg := image.NewRGBA(image.Rect(0, 0, width, height))
 	for py := 0; py < height; py++ {

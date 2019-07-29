@@ -10,91 +10,87 @@ type ComplexBigFloat struct {
 	Imag *big.Float
 }
 
-func (c *ComplexBigFloat) Add(other *ComplexBigFloat) *ComplexBigFloat {
+func (lhs *ComplexBigFloat) Add(rhs *ComplexBigFloat) *ComplexBigFloat {
 	return &ComplexBigFloat{
 		Real: new(big.Float).Add(
-			c.Real,
-			other.Real,
+			lhs.Real,
+			rhs.Real,
 		),
 		Imag: new(big.Float).Add(
-			c.Imag,
-			other.Imag,
+			lhs.Imag,
+			rhs.Imag,
 		)}
 }
-func (c *ComplexBigFloat) Sub(other *ComplexBigFloat) *ComplexBigFloat {
+func (lhs *ComplexBigFloat) Sub(rhs *ComplexBigFloat) *ComplexBigFloat {
 	return &ComplexBigFloat{
 		Real: new(big.Float).Sub(
-			c.Real,
-			other.Real,
+			lhs.Real,
+			rhs.Real,
 		),
 		Imag: new(big.Float).Sub(
-			c.Imag,
-			other.Imag,
+			lhs.Imag,
+			rhs.Imag,
 		)}
 }
-func (c *ComplexBigFloat) Mul(other *ComplexBigFloat) *ComplexBigFloat {
-	// (1+2i)(3+4i) = 1*3 + 1*4i + 2*3i +2*4i^2
-	//              = 3 + 4i + 6i -8
-	//              = 3-8+4i+6i
+func (lhs *ComplexBigFloat) Mul(rhs *ComplexBigFloat) *ComplexBigFloat {
+	/**
+	    (a + bi) + (c + di)
+	  = (ac - bd) + i(bc + ad)
+	*/
+	a := lhs.Real
+	b := lhs.Imag
+	c := rhs.Real
+	d := rhs.Imag
+
 	return &ComplexBigFloat{
 		Real: new(big.Float).Sub(
-			new(big.Float).Mul(
-				c.Real,
-				other.Real,
+			new(big.Float).Mul(a, c),
+			new(big.Float).Mul(b, d),
 			),
-			new(big.Float).Mul(
-				c.Imag,
-				other.Imag,
-			)),
 		Imag: new(big.Float).Add(
-			new(big.Float).Mul(
-				c.Real,
-				other.Imag,
-			),
-			new(big.Float).Mul(
-				c.Imag,
-				other.Real,
-			))}
+			new(big.Float).Mul(b, c),
+			new(big.Float).Mul(a, d),
+			)}
 }
-func (c *ComplexBigFloat) Div(other *ComplexBigFloat) *ComplexBigFloat {
-	// x1 + y1i / x2 + y2i =(x1x2+y1y2)/x2^2+y^2 + (x2y1-x1y2)/x2^2+y^2i
-	// real1*real2+imag1*imag2/denominator + real2*imag1-real1*imag2/denominator
-	// 分母 = x2^2+y^2
+func (lhs *ComplexBigFloat) Div(rhs *ComplexBigFloat) *ComplexBigFloat {
+	/**
+	    (a + bi)/(c + di)
+	  = (ac + bd) / c^2 + di^2 + i(bc-ad) / c^2 + di^2
+	*/
+	a := lhs.Real
+	b := lhs.Imag
+	c := rhs.Real
+	d := rhs.Imag
+
 	denominator := new(big.Float).Add(
-		new(big.Float).Mul(other.Real, other.Real),
-		new(big.Float).Mul(other.Imag, other.Imag),
+		new(big.Float).Mul(c, c),
+		new(big.Float).Mul(d, d),
 	)
 	fr := new(big.Float).Add(
-		new(big.Float).Mul(c.Real, other.Real),
-		new(big.Float).Mul(c.Imag, other.Imag),
+		new(big.Float).Mul(a, c),
+		new(big.Float).Mul(b, d),
 	)
 	fi := new(big.Float).Sub(
-		new(big.Float).Mul(other.Real, c.Imag),
-		new(big.Float).Mul(c.Real, other.Imag),
+		new(big.Float).Mul(b, c),
+		new(big.Float).Mul(a, d),
 	)
 	// 0または有限数でない場合は何もしない
 	if denominator.IsInf() || denominator.Cmp(new(big.Float)) == 0 {
-		return c
+		return lhs
 	}
 	return &ComplexBigFloat{
-		Real: new(big.Float).Quo(
-			fr,
-			denominator,
-		),
-		Imag: new(big.Float).Quo(
-			fi,
-			denominator,
-		),
+		Real: new(big.Float).Quo(fr, denominator),
+		Imag: new(big.Float).Quo(fi, denominator),
 	}
 }
-func (c ComplexBigFloat) Abs() *big.Float {
+func (lhs ComplexBigFloat) Abs() *big.Float {
 	zero := new(big.Float)
 
-	if c.Real.IsInf() || c.Imag.IsInf() {
+	if lhs.Real.IsInf() || lhs.Imag.IsInf() {
 		return new(big.Float).SetInf(true)
 	}
 
-	p, q := new(big.Float).Abs(c.Real), new(big.Float).Abs(c.Imag)
+	p, q := new(big.Float).Abs(lhs.Real), new(big.Float).Abs(lhs.Imag)
 	if p.Cmp(q) < 0 {
 		p, q = q, p
 	}
