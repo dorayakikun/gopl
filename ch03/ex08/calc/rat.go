@@ -2,7 +2,6 @@ package calc
 
 import (
 	"image/color"
-	"math"
 	"math/big"
 )
 
@@ -11,88 +10,91 @@ type ComplexRat struct {
 	Imag *big.Rat
 }
 
-func (c *ComplexRat) Add(other *ComplexRat) *ComplexRat {
+func (lhs *ComplexRat) Add(rhs *ComplexRat) *ComplexRat {
 	return &ComplexRat{
-		Real: new(big.Rat).Add(c.Real, other.Real),
-		Imag: new(big.Rat).Add(c.Imag, other.Imag),
+		Real: new(big.Rat).Add(lhs.Real, rhs.Real),
+		Imag: new(big.Rat).Add(lhs.Imag, rhs.Imag),
 	}
 }
-func (c *ComplexRat) Sub(other *ComplexRat) *ComplexRat {
+func (lhs *ComplexRat) Sub(rhs *ComplexRat) *ComplexRat {
 	return &ComplexRat{
-		Real: new(big.Rat).Sub(c.Real, other.Real),
-		Imag: new(big.Rat).Sub(c.Imag, other.Imag),
+		Real: new(big.Rat).Sub(lhs.Real, rhs.Real),
+		Imag: new(big.Rat).Sub(lhs.Imag, rhs.Imag),
 	}
 }
 
-func (c *ComplexRat) Mul(other *ComplexRat) *ComplexRat {
-	// (1+2i)(3+4i) = 1*3 + 1*4i + 2*3i +2*4i^2
-	//              = 3 + 4i + 6i -8
-	//              = 3-8+4i+6i
+func (lhs *ComplexRat) Mul(rhs *ComplexRat) *ComplexRat {
+	/**
+		(a + bi)(lhs + di)
+	  = (ac - bd) + i(bc + ad)
+	*/
+	a := lhs.Real
+	b := lhs.Imag
+	c := rhs.Real
+	d := rhs.Imag
 	return &ComplexRat{
+		// ac - bd
 		Real: new(big.Rat).Sub(
-			new(big.Rat).Mul(
-				c.Real,
-				other.Real,
-			),
-			new(big.Rat).Mul(
-				c.Imag,
-				other.Imag,
-			)),
+			new(big.Rat).Mul(a, c),
+			new(big.Rat).Mul(b, d)),
+		// bc -ad
 		Imag: new(big.Rat).Add(
-			new(big.Rat).Mul(
-				c.Real,
-				other.Imag,
-			),
-			new(big.Rat).Mul(
-				c.Imag,
-				other.Real,
-			))}
+			new(big.Rat).Mul(b, c),
+			new(big.Rat).Mul(a, d))}
 }
-func (c *ComplexRat) Div(other *ComplexRat) *ComplexRat {
-	// x1 + y1i / x2 + y2i =(x1x2+y1y2)/x2^2+y^2 + (x2y1-x1y2)/x2^2+y^2i
-	// real1*real2+imag1*imag2/denominator + real2*imag1-real1*imag2/denominator
-	// 分母 = x2^2+y^2
+func (lhs *ComplexRat) Div(rhs *ComplexRat) *ComplexRat {
+	/**
+	    (a + bi)/(c + di)
+	  = (ac + bd) / c^2 + di^2 + i(bc-ad) / c^2 + di^2
+	*/
+
+	a := lhs.Real
+	b := lhs.Imag
+	c := rhs.Real
+	d := rhs.Imag
+
+	// c^2 + di^2
 	denominator := new(big.Rat).Add(
-		new(big.Rat).Mul(other.Real, other.Real),
-		new(big.Rat).Mul(other.Imag, other.Imag),
+		new(big.Rat).Mul(c, c),
+		new(big.Rat).Mul(d, d),
 	)
 
-	v, _ := denominator.Float64()
-	if v == 0 {
-		return c
+	zero := new(big.Rat).SetFloat64(0)
+	if denominator.Cmp(zero) == 0 {
+		return &ComplexRat{zero, zero}
 	}
 
+	// ac + bd
 	fr := new(big.Rat).Add(
-		new(big.Rat).Mul(c.Real, other.Real),
-		new(big.Rat).Mul(c.Imag, other.Imag),
+		new(big.Rat).Mul(a, c),
+		new(big.Rat).Mul(b, d),
 	)
+	// bc - ad
 	fi := new(big.Rat).Sub(
-		new(big.Rat).Mul(other.Real, c.Imag),
-		new(big.Rat).Mul(c.Real, other.Imag),
+		new(big.Rat).Mul(b, c),
+		new(big.Rat).Mul(a, d),
 	)
 	return &ComplexRat{
-		Real: new(big.Rat).Quo(
-			fr,
-			denominator,
-		),
-		Imag: new(big.Rat).Quo(
-			fi,
-			denominator,
-		),
+		Real: new(big.Rat).Quo(fr, denominator),
+		Imag: new(big.Rat).Quo(fi, denominator),
 	}
 }
-func (c *ComplexRat) Abs() float64 {
-	// TODO math.Hypot(p, q)のシュミレートをどうするか
-	p, _ := c.Real.Float64()
-	q, _ := c.Imag.Float64()
-	return math.Hypot(p, q)
+func (lhs *ComplexRat) Abs() *big.Rat {
+	p := lhs.Real
+	q := lhs.Imag
+
+	// Absは1としか比較しないはずなので、平方根は不要
+	return new(big.Rat).Add(
+		new(big.Rat).Mul(p, p),
+		new(big.Rat).Mul(q, q),
+	)
 }
 
 // z^4 - 1 = 0を求める関数
 func fRat(x *ComplexRat) *ComplexRat {
 	one := &ComplexRat{
 		Real: big.NewRat(1, 1),
-		Imag: big.NewRat(0, 1),
+		Imag: new(big.Rat),
 	}
 	return x.Mul(x).Mul(x).Mul(x).Sub(one)
 }
@@ -102,32 +104,35 @@ func fRat(x *ComplexRat) *ComplexRat {
 func dfRat(x *ComplexRat) *ComplexRat {
 	four := &ComplexRat{
 		Real: big.NewRat(4, 1),
-		Imag: big.NewRat(0, 1),
+		Imag: new(big.Rat),
 	}
 	return four.Mul(x).Mul(x).Mul(x)
 }
 func NewtonRat(z *ComplexRat) color.Color {
 	const iterations = 5
 	const contrast = 15
+
+	epsilonRat := new(big.Rat).Mul(big.NewRat(1, 10000), big.NewRat(1, 10000))
 	// 1
-	one := &ComplexRat{Real: big.NewRat(1, 1), Imag: big.NewRat(0, 1)}
+	one := &ComplexRat{Real: new(big.Rat).SetFloat64(1), Imag: new(big.Rat).SetFloat64(0)}
 	// -1
-	none := &ComplexRat{Real: big.NewRat(-1, 1), Imag: big.NewRat(0, 1)}
+	negaOne := &ComplexRat{Real: new(big.Rat).SetFloat64(-1), Imag: new(big.Rat).SetFloat64(0)}
 	// i
-	i := &ComplexRat{Real: big.NewRat(0, 1), Imag: big.NewRat(1, 1)}
+	i := &ComplexRat{Real: new(big.Rat).SetFloat64(0), Imag: new(big.Rat).SetFloat64(1)}
 	// -i
-	ni := &ComplexRat{Real: big.NewRat(0, 1), Imag: big.NewRat(-1, 1)}
+	negaI := &ComplexRat{Real: new(big.Rat).SetFloat64(0), Imag: new(big.Rat).SetFloat64(-1)}
 	for n := uint8(0); n < iterations; n++ {
 		// ニュートン法のアルゴリズムは右記を参照. https://algorithm.joho.info/mathematics/newton-method-program/
 		// 漸化式 αn - f(αn) / df(αn)
 		z = z.Sub(fRat(z).Div(dfRat(z)))
-		if one.Sub(z).Abs() < epsilon {
+		// fmt.Printf("z: %s\n", z.Abs().FloatString(10))
+		if one.Sub(z).Abs().Cmp(epsilonRat) < 0 {
 			return color.RGBA{R: contrast * n, G: 0, B: 0, A: 255}
-		} else if none.Sub(z).Abs() < epsilon {
+		} else if negaOne.Sub(z).Abs().Cmp(epsilonRat) < 0 {
 			return color.RGBA{R: 0, G: 0, B: contrast * n, A: 255}
-		} else if i.Sub(z).Abs() < epsilon {
+		} else if i.Sub(z).Abs().Cmp(epsilonRat) < 0 {
 			return color.RGBA{R: 0, G: contrast * n, B: 0, A: 255}
-		} else if ni.Sub(z).Abs() < epsilon {
+		} else if negaI.Sub(z).Abs().Cmp(epsilonRat) < 0 {
 			return color.RGBA{R: 0, G: contrast * n, B: contrast * n, A: 255}
 		}
 	}
