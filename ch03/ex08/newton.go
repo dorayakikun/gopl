@@ -9,7 +9,7 @@ import (
 	"math/big"
 	"os"
 	"sync"
-	"z/calc"
+	"z/c"
 )
 
 const epsilon = 1e-5
@@ -20,7 +20,7 @@ func main() {
 	flag.Parse()
 	const (
 		xmin, ymin, xmax, ymax = -2, -2, +2, +2
-		width, height          = 1024, 1024
+		width, height          = 64, 64
 	)
 	img := image.NewRGBA(image.Rect(0, 0, width, height))
 
@@ -35,19 +35,19 @@ func main() {
 				switch *mode {
 				case 0:
 					z := complex(x, y)
-					img.Set(px, py, calc.Newton(z))
+					img.Set(px, py, c.Newton(z))
 				case 1:
 					z := complex64(complex(x, y))
-					img.Set(px, py, calc.NewtonC64(z))
+					img.Set(px, py, c.NewtonC64(z))
 				case 2:
-					z := &calc.ComplexBigFloat{Real: big.NewFloat(x), Imag: big.NewFloat(y)}
-					img.Set(px, py, calc.NewtonBigFloat(z))
+					z := &c.ComplexBigFloat{Real: big.NewFloat(x), Imag: big.NewFloat(y)}
+					img.Set(px, py, c.NewtonBigFloat(z))
 				case 3:
-					z := &calc.ComplexRat{
+					z := &c.ComplexRat{
 						Real: new(big.Rat).SetFloat64(x),
 						Imag: new(big.Rat).SetFloat64(y),
 					}
-					img.Set(px, py, calc.NewtonRat(z))
+					img.Set(px, py, c.NewtonRat(z))
 				}
 				wg.Done()
 			}(x, y, px, py)

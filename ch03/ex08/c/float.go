@@ -1,4 +1,4 @@
-package calc
+package c
 
 import (
 	"image/color"

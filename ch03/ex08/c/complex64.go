@@ -1,4 +1,4 @@
-package calc
+package c
 
 import (
 	"image/color"
@@ -27,7 +27,7 @@ func NewtonC64(z complex64) color.Color {
 			return color.RGBA{R: contrast * n, G: 0, B: 0, A: 255}
 		} else if cmplx.Abs(complex128(-1-z)) < epsilon {
 			return color.RGBA{R: 0, G: 0, B: contrast * n, A: 255}
-		} else if cmplx.Abs(complex128(1-z)) < epsilon {
+		} else if cmplx.Abs(complex128(1i-z)) < epsilon {
 			return color.RGBA{R: 0, G: contrast * n, B: 0, A: 255}
 		} else if cmplx.Abs(complex128(-1i-z)) < epsilon {
 			return color.RGBA{R: 0, G: contrast * n, B: contrast * n, A: 255}
