@@ -1,5 +1,6 @@
 #!/bin/bash
 # Pep: The Story of a Brave Dog
+export GO111MODULE=on
 cat <<EOF | go run wordfreq.go
 Try as he would he could not keep away from him. Often this man creature wounded him with his sharp stick. He also poisoned the wolf pack, but still they could not be driven away, for it was an unwritten law of nature that some day they should be inseparable.
 
