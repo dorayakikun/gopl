@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"golang.org/x/net/html"
+	"io"
 	"net/http"
 	"os"
 	"strings"
@@ -10,11 +11,11 @@ import (
 
 func main() {
 	for _, url := range os.Args[1:] {
-		outline(url)
+		outline(os.Stdout, url)
 	}
 }
 
-func outline(url string) error {
+func outline(w io.Writer, url string) error {
 	resp, err := http.Get(url)
 	if err != nil {
 		return err
@@ -26,45 +27,45 @@ func outline(url string) error {
 		return err
 	}
 
-	forEachNode(doc, startElement, endElement)
+	forEachNode(w, doc, startElement, endElement)
 
 	return nil
 }
 
-func forEachNode(n *html.Node, pre, post func(n *html.Node)) {
+func forEachNode(w io.Writer, n *html.Node, pre, post func(w io.Writer, n *html.Node)) {
 	if pre != nil {
-		pre(n)
+		pre(w, n)
 	}
 
 	for c := n.FirstChild; c != nil; c = c.NextSibling {
-		forEachNode(c, pre, post)
+		forEachNode(w, c, pre, post)
 	}
 
 	if post != nil {
-		post(n)
+		post(w, n)
 	}
 }
 
 var depth int
 
-func startElement(n *html.Node) {
+func startElement(w io.Writer, n *html.Node) {
 	if n.Type == html.ElementNode {
 		if n.FirstChild == nil {
-			fmt.Printf("%*s<%s%s/>\n", depth*2, "", n.Data, attrstring(n.Attr))
+			fmt.Fprintf(w,"%*s<%s%s/>\n", depth*2, "", n.Data, attrstring(n.Attr))
 		} else {
-			fmt.Printf("%*s<%s%s>\n", depth*2, "", n.Data, attrstring(n.Attr))
+			fmt.Fprintf(w,"%*s<%s%s>\n", depth*2, "", n.Data, attrstring(n.Attr))
 		}
 		depth++
 	}
 }
 
-func endElement(n *html.Node) {
+func endElement(w io.Writer, n *html.Node) {
 	if n.Type == html.ElementNode {
 		depth--
 		if n.FirstChild == nil {
 			return
 		}
-		fmt.Printf("%*s</%s>\n", depth*2, "", n.Data)
+		fmt.Fprintf(w,"%*s</%s>\n", depth*2, "", n.Data)
 	}
 }
 
