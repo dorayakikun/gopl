@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"sort"
 )
 
 var prereqs = map[string][]string{
@@ -29,21 +30,27 @@ func main() {
 	}
 }
 
-func topoSort(m map[string] []string)[]string {
+func topoSort(m map[string][]string) []string {
 	var order []string
 	seen := make(map[string]bool)
-	var visitAll func(m map[string][]string)
-	visitAll = func(m map[string][]string) {
-		for k, _ := range m {
-			if !seen[k] {
-				seen[k] = true
+	var visitAll func(items []string)
 
-				order = append(order, k)
+	visitAll = func(items []string) {
+		for _, item := range items {
+			if !seen[item] {
+				seen[item] = true
+				visitAll(m[item])
+				order = append(order, item)
 			}
 		}
 	}
 
-	visitAll(m)
+	var keys []string
+	for key := range m {
+		keys = append(keys, key)
+	}
 
+	sort.Strings(keys)
+	visitAll(keys)
 	return order
 }
