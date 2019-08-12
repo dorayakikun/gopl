@@ -3,6 +3,7 @@ package intset
 import (
 	"bytes"
 	"fmt"
+	"math/bits"
 )
 
 type IntSet struct {
@@ -53,27 +54,16 @@ func (s *IntSet) String() string {
 }
 
 func (s *IntSet) Len() int {
-	//var count int
-	//for i, word := range s.words {
-	//	if word == 0 {
-	//		continue
-	//	}
-	//	for j := 0; j < 64; j++ {
-	//		if word&(1<<uint(j)) != 0 {
-	//			count += 64*i+j
-	//		}
-	//	}
-	//}
-	return len(s.words)
+	var bitcount int
+	for _, word := range s.words {
+		bitcount += bits.OnesCount64(word)
+	}
+	return bitcount
 }
 
 func (s *IntSet) Remove(x int) {
-	fmt.Println(s.words)
 	word, bit := x/64, uint(x%64)
 	s.words[word] &= ^uint64(1 << bit)
-	if s.words[word] == 0 {
-
-	}
 }
 
 func (s *IntSet) Clear() {

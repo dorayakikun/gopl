@@ -63,43 +63,47 @@ func TestIntSet_Len(t *testing.T) {
 	}
 
 	x.Add(63)
-	if x.Len() != 1 {
+	if x.Len() != 2 {
 		t.Errorf("x.Len() is %d want %d", x.Len(), 1)
 		return
 	}
 
+	// 同じ場所なので、長さは変わらない
 	x.Add(1)
-	fmt.Println(x.String())
-	fmt.Printf("%b\n", x.words)
+	if x.Len() != 2 {
+		t.Errorf("x.Len() is %d want %d", x.Len(), 2)
+		return
+	}
 
 	x.Add(2)
-	fmt.Println(x.String())
-	fmt.Printf("%b\n", x.words)
-	//if x.Len() != 2 {
-	//	t.Errorf("x.Len() is %d want %d", x.Len(), 2)
-	//	return
-	//}
+	if x.Len() != 3 {
+		t.Errorf("x.Len() is %d want %d", x.Len(), 3)
+		return
+	}
 }
 
 func TestIntSet_Remove(t *testing.T) {
 	var x IntSet
 	x.Add(5)
-	x.Remove(5)
-
-	x.Clear()
-	fmt.Println(x.String())
-
 	x.Add(128)
-	x.Remove(64)
+	x.Remove(128)
+
+	if x.String() != "{5}" {
+		t.Errorf("x.String() is %s want {5}", x.String())
+	}
+
+	x.Remove(5)
+	if x.String() != "{}" {
+		t.Errorf("x.String() is %s want {}", x.String())
+	}
 }
 
 func TestIntSet_Clear(t *testing.T) {
 	var x IntSet
 	x.Add(100)
 
-	// TODO 多分Lenの実装がだめなので、修正する
-	if x.Len() != 2 {
-		t.Errorf("x.Len() is %d want %d", x.Len(), 2)
+	if x.Len() != 1 {
+		t.Errorf("x.Len() is %d want %d", x.Len(), 1)
 		return
 	}
 
