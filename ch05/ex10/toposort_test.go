@@ -18,7 +18,7 @@ func TestTopoSort(t *testing.T) {
 				}
 			}
 			if !found {
-				t.Fatalf("missing dependencies %s", k)
+				t.Fatalf("missing dependencies: %q -> %q", o, k)
 			}
 		}
 	}
