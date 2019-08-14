@@ -124,3 +124,15 @@ func TestIntSet_Copy(t *testing.T) {
 		t.Errorf("x is %s but y is %s", x.String(), y.String())
 	}
 }
+
+func TestIntSet_AddAll(t *testing.T) {
+	var x IntSet
+	vals := []int{0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75}
+
+	x.AddAll(vals...)
+	for _, val := range vals {
+		if !x.Has(val) {
+			t.Fatalf("add %d failed: %s\n", val, x.String())
+		}
+	}
+}
