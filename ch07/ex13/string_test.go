@@ -18,16 +18,12 @@ func TestString(t *testing.T) {
 		{"5 / 9 * (F - 32)", Env{"F": -40}, "-40"},
 		{"5 / 9 * (F - 32)", Env{"F": 32}, "0"},
 		{"5 / 9 * (F - 32)", Env{"F": 212}, "100"},
-		//!-Eval
-		// additional tests that don't appear in the book
 		{"-1 + -x", Env{"x": 1}, "-2"},
 		{"-1 - x", Env{"x": 1}, "-2"},
-		//!+Eval
 	}
 	var prevExpr string
 	for _, test := range tests {
 		if test.expr != prevExpr {
-			fmt.Printf("\n%s\n", test.expr)
 			prevExpr = test.expr
 		}
 		expr, err := Parse(test.expr)
@@ -35,6 +31,23 @@ func TestString(t *testing.T) {
 			t.Error(err)
 			continue
 		}
-		fmt.Println(expr)
+		got := fmt.Sprintf("%.6g", expr.Eval(test.env))
+		if got != test.want {
+			t.Errorf("%s.Eval() in %v = %q, want %q\n",
+				test.expr, test.env, got, test.want)
+		}
+
+		// String()の結果を再評価
+		es := expr.String()
+		fmt.Printf("test.expr: %s expr.String(): %s\n", test.expr, es)
+		expr, err = Parse(es)
+		if err != nil {
+			t.Error(err)
+			continue
+		}
+		got = fmt.Sprintf("%.6g", expr.Eval(test.env))
+		if got != test.want {
+			t.Errorf("original: %s expr.String(): %s", test.expr, es)
+		}
 	}
 }

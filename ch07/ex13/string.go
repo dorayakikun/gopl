@@ -6,33 +6,32 @@ import (
 )
 
 func (v Var) String() string {
-	return fmt.Sprintf("Var: %s", string(v))
+	return fmt.Sprintf("%s", string(v))
 }
 
 func (l literal) String() string {
-	return fmt.Sprintf("literal: %g", float64(l))
+	return fmt.Sprintf("%g", float64(l))
 }
 
 func (u unary) String() string {
-	return fmt.Sprintf("unary: x: %s op: %s", u.x, string(u.op))
+	return fmt.Sprintf("%s%s", string(u.op), u.x)
 }
 
 func (b binary) String() string {
-	return fmt.Sprintf("binary: x: %s y: %s op: %s", b.x, b.y, string(b.op))
+	return fmt.Sprintf("(%s %s %s)", b.x, string(b.op), b.y)
 }
 
 func (c call) String() string {
 	b := strings.Builder{}
-
-	b.WriteString("call:\n")
-	b.WriteString(fmt.Sprintf("\tfn: %s\n", c.fn))
+	b.WriteString(fmt.Sprintf("%s(", c.fn))
 
 	if len(c.args) > 0 {
-		b.WriteString("\targs: [\n")
-		for _, a := range c.args {
-			b.WriteString(fmt.Sprintf("\t\t%s\n", a))
+		b.WriteString(fmt.Sprintf("%s", c.args[0]))
+		for _, a := range c.args[1:] {
+			b.WriteString(", ")
+			b.WriteString(fmt.Sprintf("%s", a))
 		}
-		b.WriteString("\t]\n")
 	}
+	b.WriteString(")")
 	return b.String()
 }
