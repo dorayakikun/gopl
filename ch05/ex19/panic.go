@@ -1,11 +1,8 @@
-package main
+package panic
 
-import "fmt"
-
-func main() {
+func noop() int {
 	defer func() {
-		p := recover()
-		fmt.Printf("p is %v", p)
+		recover();
 	}()
-	panic(0)
+	panic(-1)
 }
