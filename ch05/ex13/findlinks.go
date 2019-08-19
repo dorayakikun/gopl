@@ -21,7 +21,6 @@ func breadthFirst(f func(domains []string, item string) []string, worklist []str
 		domains = append(domains, u.Hostname())
 	}
 
-
 	seen := make(map[string]bool)
 	for len(worklist) > 0 {
 		items := worklist
@@ -41,7 +40,6 @@ func crawl(domains []string, url string) []string {
 	if err != nil {
 		log.Print(err)
 	}
-
 	for _, l := range list {
 		fmt.Println(l)
 		u, err := neturl.Parse(l)
