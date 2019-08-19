@@ -3,36 +3,36 @@ package join
 import "testing"
 
 func TestJoin(t *testing.T) {
-	data := []struct{
-		sep string
-		a []string
-		expexted string
+	tests := []struct{
+		sep  string
+		a    []string
+		want string
 	} {
 		{
-			sep: ", ",
-			a: []string{ "apple", "orange", "banana" },
-			expexted: "apple, orange, banana",
+			sep:  ", ",
+			a:    []string{ "apple", "orange", "banana" },
+			want: "apple, orange, banana",
 		},
 		{
-			sep: "-",
-			a: []string{},
-			expexted: "",
+			sep:  "-",
+			a:    []string{},
+			want: "",
 		},
 		{
-			sep: ".",
-			a: []string{"aaa", "bbb"},
-			expexted: "aaa.bbb",
+			sep:  ".",
+			a:    []string{"aaa", "bbb"},
+			want: "aaa.bbb",
 		},
 		{
-			sep: ".",
-			a: []string{"soseki"},
-			expexted: "soseki",
+			sep:  ".",
+			a:    []string{"soseki"},
+			want: "soseki",
 		},
 	}
-	for _, d := range data {
-		s := join(d.sep, d.a...)
-		if s != d.expexted {
-			t.Errorf("s is %s want %s\n", s, d.expexted)
+	for _, test := range tests {
+		s := join(test.sep, test.a...)
+		if s != test.want {
+			t.Errorf("s: %s want: %s\n", s, test.want)
 		}
 	}
 }
