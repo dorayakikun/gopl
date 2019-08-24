@@ -52,8 +52,8 @@ func (c call) Eval(env Env) float64 {
 }
 
 func (m min) Eval(env Env) float64 {
-	var ret float64
-	for _, arg := range m.args {
+	ret := m.args[0].Eval(env)
+	for _, arg := range m.args[1:] {
 		if ret > arg.Eval(env) {
 			ret = arg.Eval(env)
 		}
