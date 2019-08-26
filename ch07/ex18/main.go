@@ -8,8 +8,7 @@ import (
 	"strings"
 )
 
-type Node interface {
-}
+type Node interface{}
 
 type CharData string
 
@@ -20,18 +19,15 @@ type Element struct {
 }
 
 func main() {
-	dec := xml.NewDecoder(os.Stdin)
-	var stack []Element // stack of element names
 
-	//el := rootElement(dec)
-	//root, ok := el.(Element)
-	//if !ok {
-	//	fmt.Printf("%t %+v", ok, root)
-	//	os.Exit(0)
-	//}
-	stack = append(stack, Element{})
+	var r io.Reader
+	r = os.Stdin
+	dec := xml.NewDecoder(r)
 
-  	var hoge Element
+	stack := []*Element{
+		{}, // dummy root
+	} // stack of element names
+
 	for {
 		tok, err := dec.Token()
 		if err == io.EOF {
@@ -40,21 +36,40 @@ func main() {
 			fmt.Fprintf(os.Stderr, "xmlselect: %v\n", err)
 			os.Exit(1)
 		}
+
 		top := stack[len(stack)-1]
 		switch tok := tok.(type) {
 		case xml.StartElement:
-			el := Element{ Type: tok.Name, Attr: tok.Attr}
+			el := &Element{Type: tok.Name, Attr: tok.Attr}
 			top.Children = append(top.Children, el)
 			stack = append(stack, el)
 		case xml.EndElement:
-			hoge = top
 			stack = stack[:len(stack)-1] // pop
 		case xml.CharData:
 			top.Children = append(top.Children, CharData(tok.Copy()))
 		}
 	}
-	fmt.Println(hoge)
-	//printChildren(1, root.Children)
+	for _, child := range stack[0].Children {
+		_, ok := child.(*Element)
+		if ok {
+			printNode(os.Stdout, child, "")
+		}
+	}
+}
+
+func printNode(w io.Writer, node Node, prefix string) {
+	switch n := node.(type) {
+	case *Element:
+		fmt.Fprintf(w, "%s<%s>\n", prefix, n.Type.Local)
+		for _, child := range n.Children {
+			printNode(w, child, "  " + prefix)
+		}
+		fmt.Fprintf(w, "%s</%s>\n", prefix, n.Type.Local)
+	case CharData:
+		fmt.Fprintf(w, "%s%s\n", prefix, string(n))
+	default:
+		panic("unexpected")
+	}
 }
 
 func rootElement(dec *xml.Decoder) Node {
