@@ -3,9 +3,10 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
+	"github.com/pkg/errors"
 	"io"
+	"log"
 	"os"
-	"strings"
 )
 
 type Node interface{}
@@ -19,9 +20,19 @@ type Element struct {
 }
 
 func main() {
+	children, err := run(os.Stdin, os.Stdout)
+	if err != nil {
+		log.Fatal(err)
+	}
+	for _, child := range children {
+		_, ok := child.(*Element)
+		if ok {
+			printNode(os.Stdout, child, "")
+		}
+	}
+}
 
-	var r io.Reader
-	r = os.Stdin
+func run(r io.Reader, w io.Writer) ([]Node, error) {
 	dec := xml.NewDecoder(r)
 
 	stack := []*Element{
@@ -33,8 +44,7 @@ func main() {
 		if err == io.EOF {
 			break
 		} else if err != nil {
-			fmt.Fprintf(os.Stderr, "xmlselect: %v\n", err)
-			os.Exit(1)
+			return nil, errors.Wrap(err, "decode failed")
 		}
 
 		top := stack[len(stack)-1]
@@ -49,12 +59,7 @@ func main() {
 			top.Children = append(top.Children, CharData(tok.Copy()))
 		}
 	}
-	for _, child := range stack[0].Children {
-		_, ok := child.(*Element)
-		if ok {
-			printNode(os.Stdout, child, "")
-		}
-	}
+	return stack[0].Children, nil
 }
 
 func printNode(w io.Writer, node Node, prefix string) {
@@ -69,28 +74,5 @@ func printNode(w io.Writer, node Node, prefix string) {
 		fmt.Fprintf(w, "%s%s\n", prefix, string(n))
 	default:
 		panic("unexpected")
-	}
-}
-
-func rootElement(dec *xml.Decoder) Node {
-	tok, err := dec.Token()
-	if err == io.EOF {
-		return nil
-	} else if err != nil {
-		fmt.Fprintf(os.Stderr, "xmlselect: %v\n", err)
-		os.Exit(1)
-	}
-	return tok
-}
-
-func printChildren(depth int, children []Node) {
-	for _, c := range children {
-		switch c := c.(type) {
-		case Element:
-			fmt.Printf("%s%s\n", strings.Repeat("\t", depth), c.Type.Local)
-			printChildren(depth+1, c.Children)
-		case CharData:
-			fmt.Printf("%s%s\n", strings.Repeat("\t", depth), c)
-		}
 	}
 }
