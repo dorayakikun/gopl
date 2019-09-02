@@ -5,105 +5,165 @@ import (
 	"fmt"
 	"github.com/pkg/errors"
 	"io"
+	"log"
 	"os"
 	"strconv"
 	"strings"
 )
 
-func main() {
-	scanner := bufio.NewScanner(os.Stdin)
-
-	scanner.Scan()
-	scanner.Text()
+type cell struct {
+	x        int
+	y        int
+	cellType rune
+	steps    int
 }
 
-func run(reader io.Reader) error {
+type point struct {
+	value [2]int
+}
+
+func main() {
+	steps, err := run(os.Stdin)
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	fmt.Println(steps)
+}
+
+func run(reader io.Reader) (int, error) {
 	scanner := bufio.NewScanner(reader)
 
-	var r, c int
+	var row, column int
 	for scanner.Scan() {
 		rc := strings.Split(scanner.Text(), " ")
 
 		if len(rc) != 2 {
-			return errors.New(fmt.Sprintf("%q want: [\"r\"  \"coloumn\"]\n", rc))
+			return 0, errors.New(fmt.Sprintf("%q want: [\"r\"  \"coloumn\"]\n", rc))
 		}
 		a, err := strconv.Atoi(rc[0])
 		if err != nil {
-			return errors.New(fmt.Sprintf("%q is not number\n", rc[0]))
+			return 0, errors.New(fmt.Sprintf("%q is not number\n", rc[0]))
 		}
 		b, err := strconv.Atoi(rc[1])
 		if err != nil {
-			return errors.New(fmt.Sprintf("%q is not number\n", rc[1]))
+			return 0, errors.New(fmt.Sprintf("%q is not number\n", rc[1]))
 		}
-		r, c = a, b
+		row, column = a, b
 		break
 	}
 
-	var sx, sy int
+	var sy, sx int
 	for scanner.Scan() {
 		rc := strings.Split(scanner.Text(), " ")
 
 		if len(rc) != 2 {
-			return errors.New(fmt.Sprintf("%q want: [\"sx\"  \"sy\"]\n", rc))
+			return 0, errors.New(fmt.Sprintf("%q want: [\"sy\"  \"sx\"]\n", rc))
 		}
 		a, err := strconv.Atoi(rc[0])
 		if err != nil {
-			return errors.New(fmt.Sprintf("%q is not number\n", rc[0]))
+			return 0, errors.New(fmt.Sprintf("%q is not number\n", rc[0]))
 		}
 		b, err := strconv.Atoi(rc[1])
 		if err != nil {
-			return errors.New(fmt.Sprintf("%q is not number\n", rc[1]))
+			return 0, errors.New(fmt.Sprintf("%q is not number\n", rc[1]))
 		}
-		sx, sy = a, b
+		sy, sx = a, b
+		break
 	}
 
-	var gx, gy int
+	var gy, gx int
 	for scanner.Scan() {
 		rc := strings.Split(scanner.Text(), " ")
 
 		if len(rc) != 2 {
-			return errors.New(fmt.Sprintf("%q want: [\"gx\"  \"gy\"]\n", rc))
+			return 0, errors.New(fmt.Sprintf("%q want: [\"gy\"  \"gx\"]\n", rc))
 		}
 		a, err := strconv.Atoi(rc[0])
 		if err != nil {
-			return errors.New(fmt.Sprintf("%q is not number\n", rc[0]))
+			return 0, errors.New(fmt.Sprintf("%q is not number\n", rc[0]))
 		}
 		b, err := strconv.Atoi(rc[1])
 		if err != nil {
-			return errors.New(fmt.Sprintf("%q is not number\n", rc[1]))
+			return 0, errors.New(fmt.Sprintf("%q is not number\n", rc[1]))
 		}
-		gx, gy = a, b
+		gy, gx = a, b
+		break
 	}
 
-	// TODO 座標と動けるマスを持てるstructを作成する
-	maze := make([][]rune, r)
-	for i := 0; i < r; i++ {
-		maze[i] = make([]rune, c)
+	maze := make([][]*cell, row)
+	for i := 0; i < row; i++ { // y
+		maze[i] = make([]*cell, column)
 
 		scanner.Scan()
 		cells := []rune(scanner.Text())
 
-		for j, cell := range cells {
-			if cell != '.' && cell != '#' {
-				return errors.New(fmt.Sprintf("%q want '.' or '#'\n", cell))
+		for j, c := range cells { // x
+			if c != '.' && c != '#' {
+				return 0, errors.New(fmt.Sprintf("%q want '.' or '#'\n", c))
 			}
-			maze[i][j] = cell
+			maze[i][j] = &cell{x: j + 1, y: i + 1, cellType: c, steps: -1}
 		}
 	}
 
-	return nil
-}
+	// debug
+	//for _, r := range maze {
+	//	for _, c := range r {
+	//		fmt.Print(string(c.cellType))
+	//	}
+	//	fmt.Println()
+	//}
 
-func breadthFirst(f func(item string) []string, worklist []string) {
-	seen := make(map[string]bool)
-	for len(worklist) > 0 {
-		items := worklist
-		worklist = nil
-		for _, item := range items {
-			if !seen[item] {
-				seen[item] = true
-				worklist = append(worklist, f(item)...)
+	start := maze[sy-1][sx-1]
+	start.steps = 0
+	stack := []*cell{start}
+	for len(stack) > 0 {
+		current := stack[len(stack)-1]
+		stack = stack[:len(stack)-1]
+		var nexts []*cell
+
+		// up
+		uy, ux := current.y+1, current.x
+		if 0 < uy && uy < row {
+			cell := maze[uy-1][ux-1]
+			if cell.steps < 0 && cell.cellType == '.' {
+				nexts = append(nexts, cell)
+			}
+		}
+		// down
+		dy, dx := current.y-1, current.x
+		if 0 < dy && dy < row {
+			cell := maze[dy-1][dx-1]
+			if cell.steps < 0 && cell.cellType == '.' {
+				nexts = append(nexts, cell)
+			}
+		}
+		// right
+		ry, rx := current.y, current.x+1
+		if 0 < rx && rx < column {
+			cell := maze[ry-1][rx-1]
+			if cell.steps < 0 && cell.cellType == '.' {
+				nexts = append(nexts, cell)
+			}
+		}
+		// left
+		ly, lx := current.y, current.x-1
+		if 0 < lx && lx < column {
+			cell := maze[ly-1][lx-1]
+			if cell.steps < 0 && cell.cellType == '.' {
+				nexts = append(nexts, cell)
+			}
+		}
+
+		for _, n := range nexts {
+			n.steps = current.steps + 1
+			stack = append(stack, n)
+			if n.x == gx && n.y == gy {
+				return n.steps, nil
+				continue
 			}
 		}
 	}
+
+	return 0, errors.New("missing maze goal\n")
 }
