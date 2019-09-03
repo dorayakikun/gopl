@@ -18,10 +18,6 @@ type cell struct {
 	steps    int
 }
 
-type point struct {
-	value [2]int
-}
-
 func main() {
 	steps, err := run(os.Stdin)
 	if err != nil {
@@ -116,10 +112,10 @@ func run(reader io.Reader) (int, error) {
 
 	start := maze[sy-1][sx-1]
 	start.steps = 0
-	stack := []*cell{start}
-	for len(stack) > 0 {
-		current := stack[len(stack)-1]
-		stack = stack[:len(stack)-1]
+	queue := []*cell{start}
+	for len(queue) > 0 {
+		current := queue[0]
+		queue = queue[1:]
 		var nexts []*cell
 
 		// up
@@ -157,7 +153,7 @@ func run(reader io.Reader) (int, error) {
 
 		for _, n := range nexts {
 			n.steps = current.steps + 1
-			stack = append(stack, n)
+			queue = append(queue, n)
 			if n.x == gx && n.y == gy {
 				return n.steps, nil
 				continue
