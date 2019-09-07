@@ -40,6 +40,7 @@ func crawl(domains []string, url string) []string {
 	if err != nil {
 		log.Print(err)
 	}
+	var ret []string
 	for _, l := range list {
 		fmt.Println(l)
 		u, err := neturl.Parse(l)
@@ -58,11 +59,11 @@ func crawl(domains []string, url string) []string {
 		if !samedomain {
 			continue
 		}
-
+		ret = append(ret, l)
 		copyFile(l, u)
 	}
 
-	return list
+	return ret
 }
 
 func copyFile(link string, url *neturl.URL) {
