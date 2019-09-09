@@ -5,15 +5,30 @@ import (
 	"log"
 	"net"
 	"os"
+	"strings"
 )
 
 func main() {
-	conn, err := net.Dial("tcp", "localhost:8000")
-	if err != nil {
-		log.Fatal(err)
+	args := os.Args
+
+	if len(args) == 1 {
+		log.Fatal("missing clock")
 	}
-	defer conn.Close()
-	mustCopy(os.Stdout, conn)
+
+	for _, arg := range args[1:] {
+		s := strings.Split(arg, "=")
+		if len(s) != 2 {
+			log.Fatalf("iligal format :%s e.g. NewYork=localhost:8080", arg)
+		}
+		go func(city, address string) {
+			conn, err := net.Dial("tcp", address)
+			if err != nil {
+				log.Fatal(err)
+			}
+			defer conn.Close()
+			mustCopy(os.Stdout, conn)
+		}(s[0], s[1])
+	}
 }
 
 func mustCopy(dst io.Writer, src io.Reader) {
