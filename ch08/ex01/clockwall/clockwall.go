@@ -29,6 +29,11 @@ func main() {
 			mustCopy(os.Stdout, conn)
 		}(s[0], s[1])
 	}
+	for {
+		if false {
+			break
+		}
+	}
 }
 
 func mustCopy(dst io.Writer, src io.Reader) {
