@@ -15,6 +15,7 @@ func main() {
 		log.Fatal("missing clock")
 	}
 
+	abort := make(chan struct{})
 	for _, arg := range args[1:] {
 		s := strings.Split(arg, "=")
 		if len(s) != 2 {
@@ -29,10 +30,13 @@ func main() {
 			mustCopy(os.Stdout, conn)
 		}(s[0], s[1])
 	}
-	for {
-		if false {
-			break
-		}
+
+	go func() {
+		os.Stdin.Read(make([]byte, 1))
+		abort <- struct{}{}
+	}()
+
+	for _ = range abort {
 	}
 }
 

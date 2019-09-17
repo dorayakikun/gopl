@@ -1,3 +1,3 @@
-module clackwall
+module clockwall
 
 go 1.13
