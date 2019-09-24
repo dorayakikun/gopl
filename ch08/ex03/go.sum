@@ -1,0 +1,4 @@
+github.com/renatofq/gopl v0.0.0-20170330022516-c018ef8d8332 h1:KnbyM3tWjod4mQVujYn4RlzX1qcFcz4abnfWrHR5Vxc=
+github.com/renatofq/gopl v0.0.0-20170330022516-c018ef8d8332/go.mod h1:rgX7B1yoXb2Kkz1wBcgaS0yA6RZHwTJV/idRXooMqt4=
+gopl.io v0.0.0-20161206225729-b725d6015f98 h1:R4G5zq66CTKkeGtGPeOMpv405+XGoqzwdES5N4/6XJ0=
+gopl.io v0.0.0-20161206225729-b725d6015f98/go.mod h1:k9MBtwj/WjioNgt7Buity/chxOPmJqkZ5bEaeT4JVm4=

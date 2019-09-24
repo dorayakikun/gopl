@@ -36,8 +36,7 @@ func main() {
 		abort <- struct{}{}
 	}()
 
-	for _ = range abort {
-	}
+	<-abort
 }
 
 func mustCopy(dst io.Writer, src io.Reader) {
