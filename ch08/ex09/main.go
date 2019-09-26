@@ -12,6 +12,12 @@ import (
 
 var vFlag = flag.Bool("v", false, "show verbose progress messages")
 
+type diskUsage struct {
+	root      string
+	files     int64
+	fileSizes int64
+}
+
 func main() {
 	flag.Parse()
 
@@ -20,12 +26,24 @@ func main() {
 		roots = []string{"."}
 	}
 
-	fileSizes := make(chan int64)
 	var n sync.WaitGroup
 	for _, root := range roots {
 		n.Add(1)
-		go walkDir(root, &n, fileSizes)
+		go func() {
+			run(root)
+			n.Done()
+		}()
 	}
+	n.Wait()
+}
+
+func run(root string) {
+	fileSizes := make(chan int64)
+	var n sync.WaitGroup
+
+	n.Add(1)
+	go walkDir(root, &n, fileSizes)
+
 	go func() {
 		n.Wait()
 		close(fileSizes)
@@ -46,15 +64,15 @@ loop:
 			nfiles++
 			nbytes += size
 		case <-tick:
-			printDiskUsage(nfiles, nbytes)
+			printDiskUsage(root, nfiles, nbytes)
 		}
 	}
 
-	printDiskUsage(nfiles, nbytes)
+	printDiskUsage(root, nfiles, nbytes)
 }
 
-func printDiskUsage(nfiles, nbytes int64) {
-	fmt.Printf("%d files  %.1f GB\n", nfiles, float64(nbytes)/1e9)
+func printDiskUsage(root string, nfiles, nbytes int64) {
+	fmt.Printf("%s: %d files  %.1f GB\n", root, nfiles, float64(nbytes)/1e9)
 }
 
 func walkDir(dir string, n *sync.WaitGroup, fileSizes chan<- int64) {
