@@ -1,6 +1,7 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,8 +23,16 @@ func canceled() bool {
 func fetch(url string) (filename string, n int64, err error) {
 	responses := make(chan *http.Response)
 	errors := make(chan error)
+	ctx, cancel := context.WithCancel(context.Background())
 	go func(url string) {
-		resp, err := http.Get(url)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			errors <- err
+			return
+		}
+		req.WithContext(ctx)
+		client := http.DefaultClient
+		resp, err := client.Do(req)
 		if err != nil {
 			errors <- err
 			return
@@ -31,7 +40,14 @@ func fetch(url string) (filename string, n int64, err error) {
 		responses <- resp
 	}(url)
 	go func(url string) {
-		resp, err := http.Get(url)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			errors <- err
+			return
+		}
+		req.WithContext(ctx)
+		client := http.DefaultClient
+		resp, err := client.Do(req)
 		if err != nil {
 			errors <- err
 			return
@@ -39,7 +55,14 @@ func fetch(url string) (filename string, n int64, err error) {
 		responses <- resp
 	}(url)
 	go func(url string) {
-		resp, err := http.Get(url)
+		req, err := http.NewRequest(http.MethodGet, url, nil)
+		if err != nil {
+			errors <- err
+			return
+		}
+		req.WithContext(ctx)
+		client := http.DefaultClient
+		resp, err := client.Do(req)
 		if err != nil {
 			errors <- err
 			return
@@ -50,12 +73,10 @@ func fetch(url string) (filename string, n int64, err error) {
 	var resp *http.Response
 	select {
 	case resp = <-responses:
-		close(done)
-		for range responses {
-			// noop
-		}
+		cancel()
 	case err := <-errors:
 		fmt.Printf("request failed: %s", err)
+		cancel()
 	}
 	if err != nil {
 		return "", 0, err
