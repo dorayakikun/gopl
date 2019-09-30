@@ -54,20 +54,28 @@ func handleConn(conn net.Conn) {
 	go clientWriter(conn, ch)
 	go keepConnection(conn, keep)
 
-	who := conn.RemoteAddr().String()
-	ch <- "You are " + who
-	messages <- who + " has arrived"
-	cl := client{who, ch}
-	entering <- cl
-
+	conn.Write([]byte("what's your name?\n"))
 	input := bufio.NewScanner(conn)
+	var name string
 	for input.Scan() {
-		messages <- who + ": " + input.Text()
+		name = input.Text()
+		if len(name) != 0 {
+			break
+		}
+	}
+
+	ch <- "You are " + name
+	messages <- name + " has arrived"
+	c := client{name, ch}
+	entering <- c
+
+	for input.Scan() {
+		messages <- name + ": " + input.Text()
 		keep <- struct{}{}
 	}
 
-	leaving <- cl
-	messages <- who + " has left"
+	leaving <- c
+	messages <- name + " has left"
 	one := []byte{}
 
 	// 2重でCloseすることを防止する
