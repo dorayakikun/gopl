@@ -44,8 +44,6 @@ func broadcaster() {
 		case cli := <-leaving:
 			delete(clients, cli)
 			close(cli.receiver)
-		default:
-			// non-blocking-channel
 		}
 	}
 }
