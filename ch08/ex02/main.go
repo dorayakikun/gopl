@@ -1,9 +1,39 @@
 package main
 
 import (
+	"bufio"
+	"fmt"
+	"io"
 	"log"
 	"net"
+	"strings"
 )
+
+func handleCommand(writer net.Conn, command string) {
+	log.Print(fmt.Sprintf("command: %s", command))
+	if strings.HasPrefix(command, "USER") {
+		writer.Write([]byte("331 Password Required\n"))
+	} else if strings.HasPrefix(command, "PASS") {
+		writer.Write([]byte("230 Logged in\n"))
+	}
+}
+
+func handleClient(conn net.Conn) {
+
+	reader := bufio.NewReader(conn)
+
+	conn.Write([]byte("220 Welcome to this FTP server!\n"))
+
+	for {
+		line, err := reader.ReadString('\n')
+		if err != nil {
+			if err != io.EOF {
+				log.Print(err)
+			}
+		}
+		handleCommand(conn, line)
+	}
+}
 
 func main() {
 	listener, err := net.Listen("tcp", "localhost:8000")
@@ -11,10 +41,11 @@ func main() {
 		log.Fatal(err)
 	}
 	for {
-		_, err := listener.Accept()
+		conn, err := listener.Accept()
 		if err != nil {
 			log.Print(err)
 			continue
 		}
+		handleClient(conn)
 	}
 }
