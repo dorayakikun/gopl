@@ -2,18 +2,19 @@ package main
 
 import (
 	"bufio"
-	"fmt"
 	"io"
 	"log"
 	"net"
 	"strings"
 )
 
-func handleCommand(writer net.Conn, command string) {
-	log.Print(fmt.Sprintf("command: %s", command))
-	if strings.HasPrefix(command, "USER") {
+func handleCommand(writer net.Conn, line string) {
+	s := strings.Split(line, " ")
+	command := s[0]
+	switch command {
+	case "USER":
 		writer.Write([]byte("331 Password Required\n"))
-	} else if strings.HasPrefix(command, "PASS") {
+	case "PASS":
 		writer.Write([]byte("230 Logged in\n"))
 	}
 }
