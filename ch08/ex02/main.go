@@ -2,28 +2,96 @@ package main
 
 import (
 	"bufio"
+	"fmt"
 	"io"
 	"log"
 	"net"
+	"os"
+	"strconv"
 	"strings"
 )
 
-func handleCommand(writer net.Conn, line string) {
+func handleCommand(conn net.Conn, line string, cd chan<- string) {
+	writer := bufio.NewWriter(conn)
+
 	s := strings.Split(line, " ")
+
+	if len(s) == 0 {
+		log.Print("missing command")
+		return
+	}
+
 	command := s[0]
+	log.Printf("CMD: %q", line)
 	switch command {
 	case "USER":
-		writer.Write([]byte("331 Password Required\n"))
+		writer.WriteString("331 password required\n")
+		writer.Flush()
 	case "PASS":
-		writer.Write([]byte("230 Logged in\n"))
+		writer.WriteString("230 logged in\n")
+		writer.Flush()
+	case "CWD":
+		cd <- s[1]
+	case "PORT":
+		addr := strings.Split(s[1], ",")
+
+		if len(addr) != 6 {
+			log.Printf("invalid address: %s", addr)
+			return
+		}
+
+		port, err := strconv.Atoi(addr[4])
+		fmt.Printf("port: %d\n", port<<8)
+
+		conn.Write([]byte(fmt.Sprintf("125 data port is now %d", port<<8)))
+
+		listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port<<8))
+		if err != nil {
+			log.Print(err)
+			return
+		}
+		_, err = listener.Accept()
+
+	case "QUIT":
+		conn.Write([]byte("221 closing connection...\n"))
+		// TODO: 終了をchannelを通して行うようにする
+		conn.Close()
 	}
 }
 
 func handleClient(conn net.Conn) {
-
 	reader := bufio.NewReader(conn)
+	writer := bufio.NewWriter(conn)
 
-	conn.Write([]byte("220 Welcome to this FTP server!\n"))
+	cwd, err := os.Getwd()
+	if err != nil {
+		log.Print(err)
+		return
+	}
+
+	// change directory
+	cd := make(chan string)
+	go func() {
+		for {
+			dir := <-cd
+			fmt.Printf("cwd: %s\n", cwd)
+			err = os.Chdir(dir)
+			if err != nil {
+				log.Print(err)
+				return
+			}
+			cwd, err = os.Getwd()
+			if err != nil {
+				log.Print(err)
+				return
+			}
+			writer.WriteString(fmt.Sprintf("220 directory changed to %s\n", cwd))
+			writer.Flush()
+		}
+	}()
+
+	writer.WriteString("220 Welcome to this FTP server!\n")
+	writer.Flush()
 
 	for {
 		line, err := reader.ReadString('\n')
@@ -32,7 +100,7 @@ func handleClient(conn net.Conn) {
 				log.Print(err)
 			}
 		}
-		handleCommand(conn, line)
+		handleCommand(conn, strings.Trim(line, "\r\n"), cd)
 	}
 }
 
@@ -47,6 +115,6 @@ func main() {
 			log.Print(err)
 			continue
 		}
-		handleClient(conn)
+		go handleClient(conn)
 	}
 }
