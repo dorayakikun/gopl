@@ -40,20 +40,31 @@ func handleCommand(conn net.Conn, line string, cd chan<- string) {
 			return
 		}
 
-		port, err := strconv.Atoi(addr[4])
-		fmt.Printf("port: %d\n", port<<8)
-
-		conn.Write([]byte(fmt.Sprintf("125 data port is now %d", port<<8)))
-
-		listener, err := net.Listen("tcp", fmt.Sprintf("localhost:%d", port<<8))
+		p1, err := strconv.ParseUint(addr[4], 10, 16)
 		if err != nil {
 			log.Print(err)
+			writer.WriteString("451 local error in processing\n")
+			writer.Flush()
 			return
 		}
-		_, err = listener.Accept()
+		p2, err := strconv.ParseUint(addr[5], 10, 16)
+		if err != nil {
+			log.Print(err)
+			writer.WriteString("451 local error in processing\n")
+			writer.Flush()
+			return
+		}
+		port := p1<<8 | p2
+		fmt.Printf("port: %d\n", port)
+		writer.WriteString(fmt.Sprintf("200 data port is now %d\n", port))
+		writer.Flush()
+	case "LIST":
+		writer.WriteString(fmt.Sprintf("125 data connection already open\n"))
+		writer.Flush()
+
 
 	case "QUIT":
-		conn.Write([]byte("221 closing connection...\n"))
+		writer.WriteString("221 closing connection...\n")
 		// TODO: 終了をchannelを通して行うようにする
 		conn.Close()
 	}
