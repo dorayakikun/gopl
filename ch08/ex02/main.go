@@ -13,13 +13,13 @@ import (
 )
 
 type context struct {
-	cwd string
+	cwd      string
 	dataPort *net.TCPAddr
+	conn     net.Conn
 }
 
-// TODO: connをctxに入れる
-func handleCommand(conn net.Conn, line string, ctx *context) {
-	writer := bufio.NewWriter(conn)
+func handleCommand(line string, ctx *context) {
+	writer := bufio.NewWriter(ctx.conn)
 
 	s := strings.Split(line, " ")
 
@@ -86,24 +86,25 @@ func handleCommand(conn net.Conn, line string, ctx *context) {
 		ip3, _ := strconv.ParseUint(addr[0], 10, 8)
 		ip4, _ := strconv.ParseUint(addr[0], 10, 8)
 
-		ctx.dataPort = &net.TCPAddr{IP: net.IPv4(uint8(ip1), uint8(ip2), uint8(ip3), uint8(ip4)), Port:int(port)}
+		ctx.dataPort = &net.TCPAddr{IP: net.IPv4(uint8(ip1), uint8(ip2), uint8(ip3), uint8(ip4)), Port: int(port)}
 
 		writer.WriteString(fmt.Sprintf("200 data port is now %d\n", port))
 		writer.Flush()
 	case "LIST":
 		log.Printf("%+v\n", ctx)
 
-		src := *conn.LocalAddr().(*net.TCPAddr)
-		src.Port = src.Port-1
+		src := *ctx.conn.LocalAddr().(*net.TCPAddr)
+		src.Port = src.Port - 1
 
 		var dest net.TCPAddr
 		if ctx.dataPort != nil {
 			dest = *ctx.dataPort
 		} else {
-			dest = *conn.RemoteAddr().(*net.TCPAddr)
+			dest = *ctx.conn.RemoteAddr().(*net.TCPAddr)
 		}
 
 		c, err := net.DialTCP("tcp", &src, &dest)
+		defer c.Close()
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -131,12 +132,28 @@ func handleCommand(conn net.Conn, line string, ctx *context) {
 		c.Write([]byte(fmt.Sprintf("226 closing data connection\n")))
 		writer.Flush()
 
-		c.Close()
+	case "RETR":
+		log.Printf("%+v\n", ctx)
+
+		src := *ctx.conn.LocalAddr().(*net.TCPAddr)
+		src.Port = src.Port - 1
+
+		var dest net.TCPAddr
+		if ctx.dataPort != nil {
+			dest = *ctx.dataPort
+		} else {
+			dest = *ctx.conn.RemoteAddr().(*net.TCPAddr)
+		}
+
+		c, err := net.DialTCP("tcp", &src, &dest)
+		defer c.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
 
 	case "QUIT":
 		writer.WriteString("221 closing connection...\n")
-		// TODO: 終了をchannelを通して行うようにする
-		conn.Close()
+		ctx.conn.Close()
 	}
 }
 
@@ -145,6 +162,7 @@ func handleClient(conn net.Conn) {
 	writer := bufio.NewWriter(conn)
 
 	ctx := &context{}
+	ctx.conn = conn
 
 	writer.WriteString("220 Welcome to this FTP server!\n")
 	writer.Flush()
@@ -156,7 +174,7 @@ func handleClient(conn net.Conn) {
 				log.Print(err)
 			}
 		}
-		handleCommand(conn, strings.Trim(line, "\r\n"), ctx)
+		handleCommand(strings.Trim(line, "\r\n"), ctx)
 	}
 }
 
