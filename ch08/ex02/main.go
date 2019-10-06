@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"fmt"
 	"io"
+	"io/ioutil"
 	"log"
 	"net"
 	"os"
@@ -11,7 +12,13 @@ import (
 	"strings"
 )
 
-func handleCommand(conn net.Conn, line string, cd chan<- string) {
+type context struct {
+	cwd string
+	dataPort *net.TCPAddr
+}
+
+// TODO: connをctxに入れる
+func handleCommand(conn net.Conn, line string, ctx *context) {
 	writer := bufio.NewWriter(conn)
 
 	s := strings.Split(line, " ")
@@ -31,7 +38,24 @@ func handleCommand(conn net.Conn, line string, cd chan<- string) {
 		writer.WriteString("230 logged in\n")
 		writer.Flush()
 	case "CWD":
-		cd <- s[1]
+		cwd, err := os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		os.Chdir(s[1])
+
+		cwd, err = os.Getwd()
+		if err != nil {
+			log.Fatal(err)
+			return
+		}
+
+		ctx.cwd = cwd
+
+		writer.WriteString(fmt.Sprintf("220 directory changed to %s\n", cwd))
+		writer.Flush()
 	case "PORT":
 		addr := strings.Split(s[1], ",")
 
@@ -56,12 +80,58 @@ func handleCommand(conn net.Conn, line string, cd chan<- string) {
 		}
 		port := p1<<8 | p2
 		fmt.Printf("port: %d\n", port)
+
+		ip1, _ := strconv.ParseUint(addr[0], 10, 8)
+		ip2, _ := strconv.ParseUint(addr[0], 10, 8)
+		ip3, _ := strconv.ParseUint(addr[0], 10, 8)
+		ip4, _ := strconv.ParseUint(addr[0], 10, 8)
+
+		ctx.dataPort = &net.TCPAddr{IP: net.IPv4(uint8(ip1), uint8(ip2), uint8(ip3), uint8(ip4)), Port:int(port)}
+
 		writer.WriteString(fmt.Sprintf("200 data port is now %d\n", port))
 		writer.Flush()
 	case "LIST":
-		writer.WriteString(fmt.Sprintf("125 data connection already open\n"))
+		log.Printf("%+v\n", ctx)
+
+		src := *conn.LocalAddr().(*net.TCPAddr)
+		src.Port = src.Port-1
+
+		var dest net.TCPAddr
+		if ctx.dataPort != nil {
+			dest = *ctx.dataPort
+		} else {
+			dest = *conn.RemoteAddr().(*net.TCPAddr)
+		}
+
+		c, err := net.DialTCP("tcp", &src, &dest)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		c.Write([]byte("125 data connection already open\n"))
+
+		var dirname string
+		if len(s) > 1 {
+			dirname = s[1]
+		} else {
+			dirname = "."
+		}
+
+		files, err := ioutil.ReadDir(dirname)
+		if err != nil {
+			log.Print(err)
+			c.Write([]byte("501 invalid parameter or argument\n"))
+			return
+		}
+
+		for file := range files {
+			c.Write([]byte(fmt.Sprintf("%s\n", file)))
+		}
+
+		c.Write([]byte(fmt.Sprintf("226 closing data connection\n")))
 		writer.Flush()
 
+		c.Close()
 
 	case "QUIT":
 		writer.WriteString("221 closing connection...\n")
@@ -74,32 +144,7 @@ func handleClient(conn net.Conn) {
 	reader := bufio.NewReader(conn)
 	writer := bufio.NewWriter(conn)
 
-	cwd, err := os.Getwd()
-	if err != nil {
-		log.Print(err)
-		return
-	}
-
-	// change directory
-	cd := make(chan string)
-	go func() {
-		for {
-			dir := <-cd
-			fmt.Printf("cwd: %s\n", cwd)
-			err = os.Chdir(dir)
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			cwd, err = os.Getwd()
-			if err != nil {
-				log.Print(err)
-				return
-			}
-			writer.WriteString(fmt.Sprintf("220 directory changed to %s\n", cwd))
-			writer.Flush()
-		}
-	}()
+	ctx := &context{}
 
 	writer.WriteString("220 Welcome to this FTP server!\n")
 	writer.Flush()
@@ -111,7 +156,7 @@ func handleClient(conn net.Conn) {
 				log.Print(err)
 			}
 		}
-		handleCommand(conn, strings.Trim(line, "\r\n"), cd)
+		handleCommand(conn, strings.Trim(line, "\r\n"), ctx)
 	}
 }
 
