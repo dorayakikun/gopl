@@ -26,7 +26,7 @@ func detailed(file os.FileInfo) []byte {
 	fmt.Fprintf(&buf, " 1 %s %s ", "dorayakikun", "dorayakikun")
 	fmt.Fprintf(&buf, fmt.Sprintf("%12d", file.Size()))
 	fmt.Fprintf(&buf, file.ModTime().Format(" Jan _2 15:04 "))
-	fmt.Fprintf(&buf, "%s\r\n", file.Name())
+	fmt.Fprintf(&buf, "%s\n", file.Name())
 	return buf.Bytes()
 }
 
@@ -103,8 +103,6 @@ func handleCommand(line string, ctx *context) {
 		writer.WriteString(fmt.Sprintf("200 data port is now %d\n", port))
 		writer.Flush()
 	case "LIST":
-		log.Printf("%+v\n", ctx)
-
 		src := *ctx.conn.LocalAddr().(*net.TCPAddr)
 		src.Port = src.Port - 1
 
@@ -134,8 +132,7 @@ func handleCommand(line string, ctx *context) {
 
 		fi, err := os.Stat(path.Join(ctx.cwd, dirname))
 		if err != nil {
-			log.Print(err)
-			writer.Write([]byte("501 invalid parameter or argument\n"))
+			writer.WriteString(fmt.Sprintf("550 file not found: %s\n", dirname))
 			writer.Flush()
 			return
 		}
@@ -143,8 +140,8 @@ func handleCommand(line string, ctx *context) {
 		if fi.IsDir() {
 			files, err = ioutil.ReadDir(path.Join(ctx.cwd, dirname))
 			if err != nil {
-				log.Print(err)
-				writer.Write([]byte("501 invalid parameter or argument\n"))
+				// FIXME: 適切なコードとメッセージに置き換える
+				writer.WriteString("501 invalid parameter or argument\n")
 				writer.Flush()
 				return
 			}
@@ -156,7 +153,7 @@ func handleCommand(line string, ctx *context) {
 			c.Write(detailed(file))
 		}
 
-		writer.Write([]byte(fmt.Sprintf("226 closing data connection\n")))
+		writer.WriteString("226 closing data connection\n")
 		writer.Flush()
 
 	case "RETR":
