@@ -109,13 +109,13 @@ func handleCommand(ctx *context, line string) {
 		}
 
 		c, err := net.DialTCP("tcp", &src, &dest)
-		defer c.Close()
 		if err != nil {
-			log.Fatal(err)
+			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+			return
 		}
+		defer c.Close()
 
 		var dirname string
-		path.Join(ctx.cwd, dirname)
 		if len(s) > 1 {
 			dirname = s[1]
 		} else {
@@ -131,8 +131,7 @@ func handleCommand(ctx *context, line string) {
 		if fi.IsDir() {
 			files, err = ioutil.ReadDir(path.Join(ctx.cwd, dirname))
 			if err != nil {
-				// FIXME: 適切なコードとメッセージに置き換える
-				fmt.Fprintln(ctx.conn, "501 invalid parameter or argument")
+				fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
 				return
 			}
 		} else {
@@ -143,10 +142,8 @@ func handleCommand(ctx *context, line string) {
 		}
 		fmt.Fprintln(ctx.conn, "226 closing data connection")
 	case "RETR":
-		log.Printf("%+v\n", ctx)
-
 		src := *ctx.conn.LocalAddr().(*net.TCPAddr)
-		src.Port = src.Port - 1
+		src.Port = src.Port - 2
 
 		var dest net.TCPAddr
 		if ctx.dataPort != nil {
@@ -156,11 +153,24 @@ func handleCommand(ctx *context, line string) {
 		}
 
 		c, err := net.DialTCP("tcp", &src, &dest)
-		defer c.Close()
 		if err != nil {
-			log.Fatal(err)
+			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+			return
 		}
+		defer c.Close()
 
+		var dirname string
+		if len(s) > 1 {
+			dirname = s[1]
+		} else {
+			dirname = "."
+		}
+		name := path.Join(ctx.cwd, dirname)
+
+		b, err := ioutil.ReadFile(name)
+		c.Write(b)
+
+		fmt.Fprintln(ctx.conn, "226 closing data connection")
 	case "QUIT":
 		fmt.Println("221 closing connection...")
 		ctx.conn.Close()
