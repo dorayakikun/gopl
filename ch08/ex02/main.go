@@ -2,12 +2,14 @@ package main
 
 import (
 	"bufio"
+	"bytes"
 	"fmt"
 	"io"
 	"io/ioutil"
 	"log"
 	"net"
 	"os"
+	"path"
 	"strconv"
 	"strings"
 )
@@ -16,6 +18,16 @@ type context struct {
 	cwd      string
 	dataPort *net.TCPAddr
 	conn     net.Conn
+}
+
+func detailed(file os.FileInfo) []byte {
+	var buf bytes.Buffer
+	fmt.Fprint(&buf, file.Mode().String())
+	fmt.Fprintf(&buf, " 1 %s %s ", "dorayakikun", "dorayakikun")
+	fmt.Fprintf(&buf, fmt.Sprintf("%12d", file.Size()))
+	fmt.Fprintf(&buf, file.ModTime().Format(" Jan _2 15:04 "))
+	fmt.Fprintf(&buf, "%s\r\n", file.Name())
+	return buf.Bytes()
 }
 
 func handleCommand(line string, ctx *context) {
@@ -109,27 +121,42 @@ func handleCommand(line string, ctx *context) {
 			log.Fatal(err)
 		}
 
-		c.Write([]byte("125 data connection already open\n"))
+		writer.Write([]byte("150 file status ok\n"))
+		writer.Flush()
 
 		var dirname string
+		path.Join(ctx.cwd, dirname)
 		if len(s) > 1 {
 			dirname = s[1]
 		} else {
 			dirname = "."
 		}
 
-		files, err := ioutil.ReadDir(dirname)
+		fi, err := os.Stat(path.Join(ctx.cwd, dirname))
 		if err != nil {
 			log.Print(err)
-			c.Write([]byte("501 invalid parameter or argument\n"))
+			writer.Write([]byte("501 invalid parameter or argument\n"))
+			writer.Flush()
 			return
 		}
-
-		for file := range files {
-			c.Write([]byte(fmt.Sprintf("%s\n", file)))
+		var files []os.FileInfo
+		if fi.IsDir() {
+			files, err = ioutil.ReadDir(path.Join(ctx.cwd, dirname))
+			if err != nil {
+				log.Print(err)
+				writer.Write([]byte("501 invalid parameter or argument\n"))
+				writer.Flush()
+				return
+			}
+		} else {
+			files = []os.FileInfo{fi}
 		}
 
-		c.Write([]byte(fmt.Sprintf("226 closing data connection\n")))
+		for _, file := range files {
+			c.Write(detailed(file))
+		}
+
+		writer.Write([]byte(fmt.Sprintf("226 closing data connection\n")))
 		writer.Flush()
 
 	case "RETR":
