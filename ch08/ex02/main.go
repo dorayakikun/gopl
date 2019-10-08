@@ -164,11 +164,23 @@ func handleCommand(ctx *context, line string) {
 		}
 		name := path.Join(ctx.cwd, dirname)
 
-		file, err := os.Open(name)
+		stat, err := os.Stat(name)
 		if err != nil {
 			fmt.Fprintf(ctx.conn, "550 file not found: %s\n", dirname)
 			return
 		}
+
+		if stat.IsDir() {
+			fmt.Fprintf(ctx.conn, "451 %s is not file \n", name)
+			return
+		}
+
+		file, err := os.Open(name)
+		if err != nil {
+			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+			return
+		}
+		defer file.Close()
 		io.Copy(c, file)
 
 		fmt.Fprintln(ctx.conn, "226 closing data connection")
