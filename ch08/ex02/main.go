@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"log"
 	"net"
@@ -20,7 +21,7 @@ type context struct {
 	conn     net.Conn
 }
 
-func detailed(file os.FileInfo) []byte {
+func detailed(file os.FileInfo) string {
 	var buf bytes.Buffer
 
 	stat := file.Sys().(*syscall.Stat_t)
@@ -28,8 +29,8 @@ func detailed(file os.FileInfo) []byte {
 	fmt.Fprintf(&buf, " 1 %d %d ", stat.Uid, stat.Gid)
 	fmt.Fprintf(&buf, fmt.Sprintf("%12d", file.Size()))
 	fmt.Fprintf(&buf, file.ModTime().Format(" Jan _2 15:04 "))
-	fmt.Fprintf(&buf, "%s\n", file.Name())
-	return buf.Bytes()
+	fmt.Fprint(&buf, file.Name())
+	return buf.String()
 }
 
 func handleCommand(ctx *context, line string) {
@@ -66,7 +67,7 @@ func handleCommand(ctx *context, line string) {
 
 		ctx.cwd = cwd
 
-		fmt.Fprintf(ctx.conn,"220 directory changed to %s\n", cwd)
+		fmt.Fprintf(ctx.conn, "220 directory changed to %s\n", cwd)
 	case "PORT":
 		addr := strings.Split(s[1], ",")
 
@@ -83,7 +84,7 @@ func handleCommand(ctx *context, line string) {
 		p2, err := strconv.ParseUint(addr[5], 10, 16)
 		if err != nil {
 			log.Print(err)
-			fmt.Fprintln(ctx.conn,"451 local error in processing")
+			fmt.Fprintln(ctx.conn, "451 local error in processing")
 			return
 		}
 		port := p1*256 + p2
@@ -98,9 +99,6 @@ func handleCommand(ctx *context, line string) {
 	case "LIST":
 		fmt.Fprintln(ctx.conn, "150 file status ok")
 
-		src := *ctx.conn.LocalAddr().(*net.TCPAddr)
-		src.Port = src.Port - 1
-
 		var dest net.TCPAddr
 		if ctx.dataPort != nil {
 			dest = *ctx.dataPort
@@ -108,7 +106,7 @@ func handleCommand(ctx *context, line string) {
 			dest = *ctx.conn.RemoteAddr().(*net.TCPAddr)
 		}
 
-		c, err := net.DialTCP("tcp", &src, &dest)
+		c, err := net.DialTCP("tcp", nil, &dest)
 		if err != nil {
 			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
 			return
@@ -138,13 +136,10 @@ func handleCommand(ctx *context, line string) {
 			files = []os.FileInfo{fi}
 		}
 		for _, file := range files {
-			c.Write(detailed(file))
+			fmt.Fprintln(c, detailed(file))
 		}
 		fmt.Fprintln(ctx.conn, "226 closing data connection")
 	case "RETR":
-		src := *ctx.conn.LocalAddr().(*net.TCPAddr)
-		src.Port = src.Port - 2
-
 		var dest net.TCPAddr
 		if ctx.dataPort != nil {
 			dest = *ctx.dataPort
@@ -152,12 +147,14 @@ func handleCommand(ctx *context, line string) {
 			dest = *ctx.conn.RemoteAddr().(*net.TCPAddr)
 		}
 
-		c, err := net.DialTCP("tcp", &src, &dest)
+		c, err := net.DialTCP("tcp", nil, &dest)
 		if err != nil {
 			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
 			return
 		}
 		defer c.Close()
+
+		fmt.Fprintln(ctx.conn, "150 file status ok")
 
 		var dirname string
 		if len(s) > 1 {
@@ -167,8 +164,12 @@ func handleCommand(ctx *context, line string) {
 		}
 		name := path.Join(ctx.cwd, dirname)
 
-		b, err := ioutil.ReadFile(name)
-		c.Write(b)
+		file, err := os.Open(name)
+		if err != nil {
+			fmt.Fprintf(ctx.conn, "550 file not found: %s\n", dirname)
+			return
+		}
+		io.Copy(c, file)
 
 		fmt.Fprintln(ctx.conn, "226 closing data connection")
 	case "QUIT":
