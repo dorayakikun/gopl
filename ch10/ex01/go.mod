@@ -1,4 +1,4 @@
-module image
+module imageconv
 
 go 1.13
 

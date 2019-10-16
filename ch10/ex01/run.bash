@@ -3,6 +3,6 @@
 set -e
 
 go build gopl.io/ch3/mandelbrot
-go build -o image main.go
+go build -o imageconv main.go
 
-./mandelbrot | ./image >mandelbrot.jpg
+./mandelbrot | ./imageconv >mandelbrot.jpg
