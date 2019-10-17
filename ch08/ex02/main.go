@@ -52,7 +52,7 @@ func handleCommand(ctx *context, line string) {
 		cwd, err := os.Getwd()
 		if err != nil {
 			log.Print(err)
-			fmt.Fprintln(ctx.conn, "451 local error in processing")
+			fmt.Fprintln(ctx.conn, "451 failed get present working directory")
 			return
 		}
 
@@ -61,7 +61,7 @@ func handleCommand(ctx *context, line string) {
 		cwd, err = os.Getwd()
 		if err != nil {
 			log.Print(err)
-			fmt.Fprintln(ctx.conn, "451 local error in processing")
+			fmt.Fprintln(ctx.conn, "451 failed get present working directory")
 			return
 		}
 
@@ -78,24 +78,40 @@ func handleCommand(ctx *context, line string) {
 
 		p1, err := strconv.ParseUint(addr[4], 10, 16)
 		if err != nil {
-			fmt.Fprintln(ctx.conn, "451 local error in processing")
+			fmt.Fprintf(ctx.conn, "451 not a number: %s\n", addr[4])
 			return
 		}
 		p2, err := strconv.ParseUint(addr[5], 10, 16)
 		if err != nil {
 			log.Print(err)
-			fmt.Fprintln(ctx.conn, "451 local error in processing")
+			fmt.Fprintf(ctx.conn, "451 not a number: %s\n", addr[5])
 			return
 		}
 		port := p1*256 + p2
-		ip1, _ := strconv.ParseUint(addr[0], 10, 8)
-		ip2, _ := strconv.ParseUint(addr[1], 10, 8)
-		ip3, _ := strconv.ParseUint(addr[2], 10, 8)
-		ip4, _ := strconv.ParseUint(addr[3], 10, 8)
+		ip1, err := strconv.ParseUint(addr[0], 10, 8)
+		if err != nil {
+			fmt.Fprintf(ctx.conn, "451 not a number: %s\n", addr[0])
+			return
+		}
+		ip2, err := strconv.ParseUint(addr[1], 10, 8)
+		if err != nil {
+			fmt.Fprintf(ctx.conn, "451 not a number: %s\n", addr[1])
+			return
+		}
+		ip3, err := strconv.ParseUint(addr[2], 10, 8)
+		if err != nil {
+			fmt.Fprintf(ctx.conn, "451 not a number: %s\n", addr[2])
+			return
+		}
+		ip4, err := strconv.ParseUint(addr[3], 10, 8)
+		if err != nil {
+			fmt.Fprintf(ctx.conn, "451 not a number: %s\n", addr[3])
+			return
+		}
 
 		ctx.dataPort = &net.TCPAddr{IP: net.IPv4(uint8(ip1), uint8(ip2), uint8(ip3), uint8(ip4)), Port: int(port)}
 
-		fmt.Fprintf(ctx.conn, "200 data port is now %d\n", port)
+		fmt.Fprintf(ctx.conn, "200 data port is now: %d\n", port)
 	case "LIST":
 		fmt.Fprintln(ctx.conn, "150 file status ok")
 
@@ -108,7 +124,7 @@ func handleCommand(ctx *context, line string) {
 
 		c, err := net.DialTCP("tcp", nil, &dest)
 		if err != nil {
-			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+			fmt.Fprintf(ctx.conn, "451 failed dial tcp: %s\n", err.Error())
 			return
 		}
 		defer c.Close()
@@ -129,7 +145,7 @@ func handleCommand(ctx *context, line string) {
 		if fi.IsDir() {
 			files, err = ioutil.ReadDir(path.Join(ctx.cwd, dirname))
 			if err != nil {
-				fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+				fmt.Fprintf(ctx.conn, "451 failed read dir: %s\n", err.Error())
 				return
 			}
 		} else {
@@ -149,7 +165,7 @@ func handleCommand(ctx *context, line string) {
 
 		c, err := net.DialTCP("tcp", nil, &dest)
 		if err != nil {
-			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+			fmt.Fprintf(ctx.conn, "451 failed dial tcp: %s\n", err.Error())
 			return
 		}
 		defer c.Close()
@@ -171,13 +187,13 @@ func handleCommand(ctx *context, line string) {
 		}
 
 		if stat.IsDir() {
-			fmt.Fprintf(ctx.conn, "451 %s is not file \n", name)
+			fmt.Fprintf(ctx.conn, "451 not a file: %s \n", name)
 			return
 		}
 
 		file, err := os.Open(name)
 		if err != nil {
-			fmt.Fprintf(ctx.conn, "451 %s\n", err.Error())
+			fmt.Fprintf(ctx.conn, "451 failed open file: %s\n", err.Error())
 			return
 		}
 		defer file.Close()
@@ -185,17 +201,17 @@ func handleCommand(ctx *context, line string) {
 
 		fmt.Fprintln(ctx.conn, "226 closing data connection")
 	case "QUIT":
-		fmt.Println("221 closing connection...")
+		fmt.Println("221 closing connection")
 		ctx.conn.Close()
 	default:
-		fmt.Fprintln(ctx.conn, "504 Command not implemented for that parameter.")
+		fmt.Fprintln(ctx.conn, "504 command not implemented for that parameter.")
 	}
 }
 
 func handleClient(conn net.Conn) {
 	ctx := &context{conn: conn}
 	scanner := bufio.NewScanner(ctx.conn)
-	fmt.Fprintln(ctx.conn, "220 Welcome to this FTP server!")
+	fmt.Fprintln(ctx.conn, "220 welcome to this ftp server!")
 	for scanner.Scan() {
 		handleCommand(ctx, scanner.Text())
 	}
