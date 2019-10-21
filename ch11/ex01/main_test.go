@@ -32,6 +32,13 @@ func TestRun(t *testing.T) {
 			[utf8.UTFMax + 1]int{0, 12, 0, 0, 0},
 			0,
 		},
+
+		{
+			"apple banana \xa0\xa1",
+			map[rune]int{'a': 4, 'b': 1, 'n': 2, 'p': 2, 'l': 1, 'e': 1, ' ': 2},
+			[utf8.UTFMax + 1]int{0, 13, 0, 0, 0},
+			2,
+		},
 	}
 
 	for _, test := range tests {
