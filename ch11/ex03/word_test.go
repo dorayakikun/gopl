@@ -6,7 +6,6 @@ package word
 import (
 	"fmt"
 	"math/rand"
-	"sort"
 	"time"
 )
 
@@ -101,26 +100,22 @@ func TestRandomPalindromes(t *testing.T) {
 	}
 }
 
-type byRune []rune
-
-func (r byRune) Len() int           { return len(r) }
-func (r byRune) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
-func (r byRune) Less(i, j int) bool { return r[i] < r[j] }
+const alphabets = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz"
 
 func randomNonPalindrome(rng *rand.Rand) string {
 	n := rng.Intn(25) // random length up to 24
-	runes := make(map[rune]bool, n)
-	for len(runes) < n {
-		r := rune(rng.Intn(0x1000)) // random rune up to '\u0999'
-		runes[r] = true
+	runes := make([]rune, n)
+	for i := 0; i < (n+1)/2; i++ {
+		r := rune(alphabets[rand.Intn(len(alphabets))])
+		runes[i] = r
+		runes[n-1-i] = r
 	}
-	keys := make([]rune, n)
-	for k := range runes {
-		keys = append(keys, k)
+	if n < 3 {
+		runes = append(runes, []rune("あい")...)
+	} else {
+		runes = append(runes, []rune("はろー")...)
 	}
-	var r byRune = keys
-	sort.Sort(r)
-	return string(r)
+	return string(runes)
 }
 
 func TestRandomNonPalindromes(t *testing.T) {
