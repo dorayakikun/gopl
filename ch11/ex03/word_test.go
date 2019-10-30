@@ -6,6 +6,7 @@ package word
 import (
 	"fmt"
 	"math/rand"
+	"sort"
 	"time"
 )
 
@@ -100,15 +101,26 @@ func TestRandomPalindromes(t *testing.T) {
 	}
 }
 
+type byRune []rune
+
+func (r byRune) Len() int           { return len(r) }
+func (r byRune) Swap(i, j int)      { r[i], r[j] = r[j], r[i] }
+func (r byRune) Less(i, j int) bool { return r[i] < r[j] }
+
 func randomNonPalindrome(rng *rand.Rand) string {
 	n := rng.Intn(25) // random length up to 24
-	runes := make([]rune, n)
-	for i := 0; i < (n+1)/2; i++ {
+	runes := make(map[rune]bool, n)
+	for len(runes) < n {
 		r := rune(rng.Intn(0x1000)) // random rune up to '\u0999'
-		runes[i] = r
-		runes[n-1-i] = r
+		runes[r] = true
 	}
-	return string(runes)
+	keys := make([]rune, n)
+	for k := range runes {
+		keys = append(keys, k)
+	}
+	var r byRune = keys
+	sort.Sort(r)
+	return string(r)
 }
 
 func TestRandomNonPalindromes(t *testing.T) {
@@ -118,9 +130,9 @@ func TestRandomNonPalindromes(t *testing.T) {
 	rng := rand.New(rand.NewSource(seed))
 
 	for i := 0; i < 1000; i++ {
-		p := randomPalindrome(rng)
-		if !IsPalindrome(p) {
-			t.Errorf("IsPalindrome(%q) = false", p)
+		p := randomNonPalindrome(rng)
+		if IsPalindrome(p) {
+			t.Errorf("IsPalindrome(%q) = true", p)
 		}
 	}
 }
