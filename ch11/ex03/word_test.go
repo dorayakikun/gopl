@@ -110,7 +110,7 @@ func randomNonPalindrome(rng *rand.Rand) string {
 		runes[i] = r
 		runes[n-1-i] = r
 	}
-	if n < 3 {
+	if n < 2 {
 		runes = append(runes, []rune("あい")...)
 	} else {
 		runes = append(runes, []rune("はろー")...)
