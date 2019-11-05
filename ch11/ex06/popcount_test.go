@@ -2,18 +2,21 @@ package popcount
 
 import "testing"
 
-var input uint64 = 0x1234567890ABCDEF
-
 var out int
+var out2 int
 
 func BenchmarkPopCount(b *testing.B) {
+	var ret int
 	for i := 0; i < b.N; i++ {
-		out = PopCount(input)
+		ret += PopCount(0x1234567890ABCDEF)
 	}
+	out = ret
 }
 
 func BenchmarkPopCount2(b *testing.B) {
+	var ret int
 	for i := 0; i < b.N; i++ {
-		out = PopCount2(input)
+		ret += PopCount2(0x1234567890ABCDEF)
 	}
+	out2 = ret
 }
