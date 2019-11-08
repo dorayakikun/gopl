@@ -27,12 +27,12 @@ func (m *MapIntSet) Clear() {
 	m.words = nil
 }
 
-func (s *MapIntSet) UnionWith(t *MapIntSet) {
-	if s.words == nil {
-		s.words = make(map[int]bool)
+func (m *MapIntSet) UnionWith(t *MapIntSet) {
+	if m.words == nil {
+		m.words = make(map[int]bool)
 	}
 
 	for i := range t.words {
-		s.words[i] = true
+		m.words[i] = true
 	}
 }
