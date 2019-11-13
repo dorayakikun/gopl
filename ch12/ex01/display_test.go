@@ -126,28 +126,23 @@ func Example_movie() {
 	//!-strangelove
 	Display("strangelove", strangelove)
 
-	// We don't use an Output: comment since displaying
-	// a map is nondeterministic.
-	/*
-		//!+output
-		Display strangelove (display.Movie):
-		strangelove.Title = "Dr. Strangelove"
-		strangelove.Subtitle = "How I Learned to Stop Worrying and Love the Bomb"
-		strangelove.Year = 1964
-		strangelove.Color = false
-		strangelove.Actor["Gen. Buck Turgidson"] = "George C. Scott"
-		strangelove.Actor["Brig. Gen. Jack D. Ripper"] = "Sterling Hayden"
-		strangelove.Actor["Maj. T.J. \"King\" Kong"] = "Slim Pickens"
-		strangelove.Actor["Dr. Strangelove"] = "Peter Sellers"
-		strangelove.Actor["Grp. Capt. Lionel Mandrake"] = "Peter Sellers"
-		strangelove.Actor["Pres. Merkin Muffley"] = "Peter Sellers"
-		strangelove.Oscars[0] = "Best Actor (Nomin.)"
-		strangelove.Oscars[1] = "Best Adapted Screenplay (Nomin.)"
-		strangelove.Oscars[2] = "Best Director (Nomin.)"
-		strangelove.Oscars[3] = "Best Picture (Nomin.)"
-		strangelove.Sequel = nil
-		//!-output
-	*/
+	// Unordered output:
+	// Display strangelove (display.Movie):
+	// strangelove.Title = "Dr. Strangelove"
+	// strangelove.Subtitle = "How I Learned to Stop Worrying and Love the Bomb"
+	// strangelove.Year = 1964
+	// strangelove.Color = false
+	// strangelove.Actor["Gen. Buck Turgidson"] = "George C. Scott"
+	// strangelove.Actor["Brig. Gen. Jack D. Ripper"] = "Sterling Hayden"
+	// strangelove.Actor["Maj. T.J. \"King\" Kong"] = "Slim Pickens"
+	// strangelove.Actor["Dr. Strangelove"] = "Peter Sellers"
+	// strangelove.Actor["Grp. Capt. Lionel Mandrake"] = "Peter Sellers"
+	// strangelove.Actor["Pres. Merkin Muffley"] = "Peter Sellers"
+	// strangelove.Oscars[0] = "Best Actor (Nomin.)"
+	// strangelove.Oscars[1] = "Best Adapted Screenplay (Nomin.)"
+	// strangelove.Oscars[2] = "Best Director (Nomin.)"
+	// strangelove.Oscars[3] = "Best Picture (Nomin.)"
+	// strangelove.Sequel = nil
 }
 
 func Example_mapstruct() {
@@ -158,21 +153,19 @@ func Example_mapstruct() {
 	}
 	//!-account
 	//!+employee
-	employee := map[account]struct{}{
-		account{1, "どらやき"}: struct{}{},
-		account{2, "きんつば"}: struct{}{},
-		account{3, "ゆべし"}: struct{}{},
+	employee := map[account]string {
+		account{1, "どらやき"}: "dorayaki",
+		account{2, "きんつば"}: "kintsuba",
+		account{3, "ゆべし"}:  "yubeshi",
 	}
 	//!-employee
 	Display("employee", employee)
-	/*
-		//!+output
-		Display employee (display.employee):
-		employee.[display.account{1,"どらやき"}] = struct{}
-		employee.[display.account{2,"きんつば"}] = struct{}
-		employee.[display.account{3,"ゆべし"}] = struct{}
-		//!-output
-	*/
+
+	// Unordered output:
+	// Display employee (map[display.account]string):
+	// employee[display.account{1,"どらやき"}] = "dorayaki"
+	// employee[display.account{2,"きんつば"}] = "kintsuba"
+	// employee[display.account{3,"ゆべし"}] = "yubeshi"
 }
 
 func Example_maparray() {
@@ -184,8 +177,8 @@ func Example_maparray() {
 	//!-account
 	//!+nums
 	nums := map[[4]int]struct{}{
-		[4]int{1, 2, 3, 4}: struct{}{},
-		[4]int{5, 6, 7, 8}: struct{}{},
+		[4]int{1, 2, 3, 4}:    struct{}{},
+		[4]int{5, 6, 7, 8}:    struct{}{},
 		[4]int{9, 10, 11, 12}: struct{}{},
 	}
 	//!-employee
