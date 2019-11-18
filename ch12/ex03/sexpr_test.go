@@ -71,4 +71,47 @@ func Test(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("MarshalIdent() = %s\n", data)
+
+	// float
+	data, err = Marshal(123.45)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Marshal() = %s\n", data)
+
+	// complex
+	data, err = Marshal(complex(1, 2))
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Marshal() = %s\n", data)
+
+	// bool
+	data, err = Marshal(true)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Marshal() = %s\n", data)
+
+	data, err = Marshal(false)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Marshal() = %s\n", data)
+
+	// chan
+	c := make(chan map[string]string)
+	data, err = Marshal(c)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Marshal() = %s\n", data)
+
+	// chan
+	f := func(a int, b int, message string) string { return "" }
+	data, err = Marshal(f)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Logf("Marshal() = %s\n", data)
 }
