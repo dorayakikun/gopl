@@ -4,6 +4,8 @@
 package sexpr
 
 import (
+	"encoding/json"
+	"reflect"
 	"testing"
 )
 
@@ -40,5 +42,16 @@ func Test(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Marshal failed: %v", err)
 	}
-	t.Logf("Marshal() = %s\n", data)
+	m := &Movie{}
+	err = json.Unmarshal(data, m)
+	if err != nil {
+		t.Fatalf("Unmarshal failed: %v", err)
+	}
+	data2, err := Marshal(m)
+	if err != nil {
+		t.Fatalf("Marshal failed: %v", err)
+	}
+	if !reflect.DeepEqual(data, data2) {
+		t.Fatalf("not equal: \n%s\n\n%s\n", data, data2)
+	}
 }
