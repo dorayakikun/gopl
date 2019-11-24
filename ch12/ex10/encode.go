@@ -46,6 +46,7 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 		return encode(buf, v.Elem())
 
 	case reflect.Array, reflect.Slice: // (value ...)
+
 		buf.WriteByte('(')
 		for i := 0; i < v.Len(); i++ {
 			if i > 0 {
@@ -102,7 +103,7 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 	case reflect.Interface:
 		buf.WriteByte('(')
 		if v.Type().Name() == "" {
-			fmt.Fprint(buf, "")
+			fmt.Fprintf(buf, "%q ", v.Elem().Type().String())
 		} else {
 			fmt.Fprintf(buf, "%s.%s", v.Type().PkgPath(), v.Type().Name())
 		}
@@ -110,7 +111,7 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			return errors.Wrap(err, "reflect.Interface failed")
 		}
 		fmt.Fprint(buf, ")")
-	default:
+ 	default:
 		return fmt.Errorf("unsupported type: %s", v.Type())
 	}
 	return nil
