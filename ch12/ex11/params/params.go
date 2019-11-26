@@ -88,3 +88,48 @@ func populate(v reflect.Value, value string) error {
 }
 
 //!-populate
+
+//!+Pack
+
+func Pack(ptr interface{}) (string, error) {
+	v := reflect.ValueOf(ptr).Elem()
+	q := strings.Builder{}
+	for i := 0; i < v.NumField(); i++ {
+		if i > 0 {
+			q.WriteString("&")
+		}
+		tag := v.Type().Field(i).Tag.Get("http")
+		var name string
+		if tag == "" {
+			name = v.Type().Field(i).Name
+		} else {
+			name = tag
+		}
+		q.WriteString(fmt.Sprintf("%s=%s", name, valueToString(v.Field(i))))
+	}
+	return q.String(), nil
+}
+
+//!-Pack
+
+func valueToString(v reflect.Value) string {
+	switch v.Kind() {
+	case reflect.Slice:
+		var s strings.Builder
+		for i := 0; i < v.Len(); i++ {
+			if i > 0 {
+				s.WriteString(",")
+			}
+			s.WriteString(valueToString(v.Index(i)))
+		}
+		return s.String()
+	case reflect.String:
+		return v.String()
+	case reflect.Int:
+		return fmt.Sprintf("%d", v.Int())
+	case reflect.Bool:
+		return fmt.Sprintf("%t", v.Bool())
+	default:
+		panic(fmt.Sprintf("unsupported type: %v", v.Kind()))
+	}
+}
