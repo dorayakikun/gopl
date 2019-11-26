@@ -105,7 +105,17 @@ func Pack(ptr interface{}) (string, error) {
 		} else {
 			name = tag
 		}
-		q.WriteString(fmt.Sprintf("%s=%s", name, valueToString(v.Field(i))))
+
+		if v.Field(i).Kind() == reflect.Slice {
+			for j := 0; j < v.Field(i).Len(); j++ {
+				if j > 0 {
+					q.WriteString("&")
+				}
+				q.WriteString(fmt.Sprintf("%s=%s", name, valueToString(v.Field(i).Index(j))))
+			}
+		} else {
+			q.WriteString(fmt.Sprintf("%s=%s", name, valueToString(v.Field(i))))
+		}
 	}
 	return q.String(), nil
 }
@@ -114,15 +124,6 @@ func Pack(ptr interface{}) (string, error) {
 
 func valueToString(v reflect.Value) string {
 	switch v.Kind() {
-	case reflect.Slice:
-		var s strings.Builder
-		for i := 0; i < v.Len(); i++ {
-			if i > 0 {
-				s.WriteString(",")
-			}
-			s.WriteString(valueToString(v.Index(i)))
-		}
-		return s.String()
 	case reflect.String:
 		return v.String()
 	case reflect.Int:
