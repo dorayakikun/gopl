@@ -7,6 +7,7 @@
 package equal
 
 import (
+	"math"
 	"reflect"
 	"unsafe"
 )
@@ -51,6 +52,7 @@ func equal(x, y reflect.Value, seen map[comparison]bool) bool {
 	//!-
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 		reflect.Int64:
+		d := x.Int() - y.Int()
 		return x.Int() == y.Int()
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
@@ -58,7 +60,8 @@ func equal(x, y reflect.Value, seen map[comparison]bool) bool {
 		return x.Uint() == y.Uint()
 
 	case reflect.Float32, reflect.Float64:
-		return x.Float() == y.Float()
+		d := math.Abs(x.Float() - y.Float())
+		return d < 1e-10
 
 	case reflect.Complex64, reflect.Complex128:
 		return x.Complex() == y.Complex()
