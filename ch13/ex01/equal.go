@@ -8,6 +8,7 @@ package equal
 
 import (
 	"math"
+	"math/cmplx"
 	"reflect"
 	"unsafe"
 )
@@ -52,7 +53,6 @@ func equal(x, y reflect.Value, seen map[comparison]bool) bool {
 	//!-
 	case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32,
 		reflect.Int64:
-		d := x.Int() - y.Int()
 		return x.Int() == y.Int()
 
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32,
@@ -61,10 +61,11 @@ func equal(x, y reflect.Value, seen map[comparison]bool) bool {
 
 	case reflect.Float32, reflect.Float64:
 		d := math.Abs(x.Float() - y.Float())
-		return d < 1e-10
+		return d < 1e-9
 
 	case reflect.Complex64, reflect.Complex128:
-		return x.Complex() == y.Complex()
+		d := cmplx.Abs(x.Complex() - y.Complex())
+		return d < 1e-9
 	//!+
 	case reflect.Chan, reflect.UnsafePointer, reflect.Func:
 		return x.Pointer() == y.Pointer()
