@@ -9,7 +9,7 @@ import (
 	"io"
 	"testing"
 
-	"gopl.io/ch13/bzip" // writer
+	"bzip" // writer
 )
 
 func TestBzip2(t *testing.T) {
