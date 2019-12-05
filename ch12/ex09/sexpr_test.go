@@ -5,8 +5,10 @@ package sexpr
 
 import (
 	"bytes"
+	"io"
 	"reflect"
 	"testing"
+	"text/scanner"
 )
 
 func TestEncoder_Encode(t *testing.T) {
@@ -93,5 +95,47 @@ func TestDecoder_Decode(t *testing.T) {
 
 	if !reflect.DeepEqual(strangelove, m) {
 		t.Fatal("restore data failed")
+	}
+}
+
+func TestDecoder2_Token(t *testing.T) {
+	in := `((Title "") (Subtitle "How I Learned to Stop Worrying and Love the Bomb") (Year 0) )`
+	tokens := []Token{
+		StartList{},
+		StartList{},
+		Symbol{"Title"},
+		String{},
+		EndList{},
+		StartList{},
+		Symbol{"Subtitle"},
+		String{"How I Learned to Stop Worrying and Love the Bomb"},
+		EndList{},
+		StartList{},
+		Symbol{"Year"},
+		Int{0},
+		EndList{},
+		EndList{},
+	}
+
+	lex := &lexer{scan: scanner.Scanner{Mode: scanner.GoTokens}}
+	lex.scan.Init(bytes.NewReader([]byte(in)))
+	lex.next()
+	d := &Decoder2{ lex }
+
+	for _, want := range tokens {
+		token, err := d.Token()
+		if err != nil {
+			t.Errorf("%v\n", err)
+		}
+
+		if !reflect.DeepEqual(token, want) {
+			t.Errorf("actual: %v want: %v\n", token, want)
+		}
+	}
+
+	_, err := d.Token()
+
+	if err != io.EOF {
+		t.Fatalf("unexpected error: %v", err)
 	}
 }
