@@ -28,7 +28,7 @@ func outline(url string) error {
 
 	var depth int
 
-	startElement := func (n *html.Node) {
+	startElement := func(n *html.Node) {
 		if n.Type == html.ElementNode {
 			fmt.Printf("%*s<%s>\n", depth*2, "", n.Data)
 			depth++

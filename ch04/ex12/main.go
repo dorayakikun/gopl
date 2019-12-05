@@ -47,7 +47,7 @@ func main() {
 		// 404は `status code` が404になるので...
 		for num == 404 {
 			num++
-			continue;
+			continue
 		}
 
 		fname := fmt.Sprintf("%s/indexes/%d", wd, num)
@@ -67,7 +67,7 @@ func main() {
 			}
 			comics[num] = c
 			num++
-			continue;
+			continue
 		}
 
 		resp, err := http.Get(fmt.Sprintf("https://xkcd.com/%d/info.0.json", num))

@@ -8,7 +8,7 @@ import (
 )
 
 func main() {
-	if len(os.Args) != 2{
+	if len(os.Args) != 2 {
 		fmt.Println("usage: go run main.go <KEYWORD>")
 		os.Exit(2)
 	}
@@ -23,7 +23,7 @@ func main() {
 	dateRanges := make(map[string][]*github.Issue)
 	for _, item := range result.Items {
 		duration := time.Since(item.CreatedAt).Hours()
-		if duration< 744 {
+		if duration < 744 {
 			dateRanges["past month"] = append(dateRanges["past month"], item)
 		} else if duration < 8760 {
 			dateRanges["past year"] = append(dateRanges["past year"], item)

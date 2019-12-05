@@ -2,7 +2,7 @@ package panic
 
 func noop() int {
 	defer func() {
-		recover();
+		recover()
 	}()
 	panic(-1)
 }

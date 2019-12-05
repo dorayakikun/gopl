@@ -16,7 +16,7 @@ import (
 func main() {
 	var format string
 	flag.StringVar(&format, "format", "jpeg", "encoding format(e.g. jpeg, gif, png)")
-	
+
 	flag.Parse()
 
 	switch format {

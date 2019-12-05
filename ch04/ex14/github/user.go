@@ -9,10 +9,10 @@ import (
 )
 
 type User struct {
-	ID int
-	Login string
+	ID        int
+	Login     string
 	AvatarURL string `json:"avatar_url"`
-	HTMLURL string `json:"html_url"`
+	HTMLURL   string `json:"html_url"`
 }
 type UsersResult struct {
 	Users []*User

@@ -27,7 +27,7 @@ func isCyclic(x reflect.Value, seen map[comparison]bool) bool {
 	// cycle check
 	if x.CanAddr() {
 		xptr := unsafe.Pointer(x.UnsafeAddr())
-		c := comparison { xptr, x.Type() }
+		c := comparison{xptr, x.Type()}
 		if seen[c] {
 			return true // already seen
 		}

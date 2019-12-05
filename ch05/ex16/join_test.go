@@ -3,14 +3,14 @@ package join
 import "testing"
 
 func TestJoin(t *testing.T) {
-	tests := []struct{
+	tests := []struct {
 		sep  string
 		a    []string
 		want string
-	} {
+	}{
 		{
 			sep:  ", ",
-			a:    []string{ "apple", "orange", "banana" },
+			a:    []string{"apple", "orange", "banana"},
 			want: "apple, orange, banana",
 		},
 		{

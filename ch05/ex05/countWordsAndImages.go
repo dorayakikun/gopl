@@ -49,7 +49,7 @@ func countWordsAndImages(n *html.Node) (words, images int) {
 	return
 }
 
-func freqCount(counts map[string]int, n * html.Node) map[string]int {
+func freqCount(counts map[string]int, n *html.Node) map[string]int {
 	if n.Type == html.ElementNode && (n.Data != "script" || n.Data == "style") {
 		if c := n.FirstChild; c != nil {
 			if c.Type == html.TextNode {

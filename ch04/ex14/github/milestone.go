@@ -14,7 +14,7 @@ type Milestone struct {
 	HTMLURL   string `json:"html_url"`
 	Title     string
 	State     string
-	Creator      *User
+	Creator   *User
 	CreatedAt time.Time `json:"created_at"`
 	Body      string    // in Markdown format
 }
@@ -23,7 +23,7 @@ type MilestonesResult struct {
 	Milestones []*Milestone
 }
 
-func FetchMilestones(owner string, repo string) (MilestonesResult, error){
+func FetchMilestones(owner string, repo string) (MilestonesResult, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/milestones", owner, repo)
 	fmt.Printf("GET %s\n", url)
 	resp, err := http.Get(url)

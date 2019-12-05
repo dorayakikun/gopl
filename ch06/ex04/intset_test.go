@@ -252,20 +252,20 @@ func TestIntSet_SymmetricDifference(t *testing.T) {
 }
 
 func TestIntSet_Elems(t *testing.T) {
-	cases := []struct{
-		xs []int
+	cases := []struct {
+		xs   []int
 		want []int
-	} {
+	}{
 		{
-			xs: []int{1, 2, 3, 4, 5, 64, 65, 66, 129, 130},
+			xs:   []int{1, 2, 3, 4, 5, 64, 65, 66, 129, 130},
 			want: []int{1, 2, 3, 4, 5, 64, 65, 66, 129, 130},
 		},
 		{
-			xs: []int(nil),
+			xs:   []int(nil),
 			want: []int(nil),
 		},
 		{
-			xs: []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
+			xs:   []int{1, 1, 1, 1, 1, 1, 1, 1, 1},
 			want: []int{1},
 		},
 	}

@@ -21,6 +21,6 @@ func (r *reader) Read(b []byte) (n int, err error) {
 	return
 }
 
-func LimitReader(r io.Reader, n int64) (io.Reader) {
+func LimitReader(r io.Reader, n int64) io.Reader {
 	return &reader{r, n}
 }

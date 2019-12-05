@@ -17,7 +17,7 @@ func max(vals ...int) int {
 }
 
 func max2(val int, vals ...int) int {
-	max:= val
+	max := val
 	for _, v := range vals {
 		if v > max {
 			max = v

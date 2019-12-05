@@ -19,7 +19,7 @@ func main() {
 	}
 }
 
-func countElementTypes(elements map[string]int, n * html.Node) map[string]int {
+func countElementTypes(elements map[string]int, n *html.Node) map[string]int {
 	if n.Type == html.ElementNode {
 		elements[n.Data]++
 	}

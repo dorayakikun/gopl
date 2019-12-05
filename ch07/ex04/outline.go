@@ -14,7 +14,7 @@ type StringReader struct {
 }
 
 func NewReader(sd string, p int) *StringReader {
-	return &StringReader{sd, 0, p }
+	return &StringReader{sd, 0, p}
 }
 
 func (d *StringReader) Read(b []byte) (n int, err error) {

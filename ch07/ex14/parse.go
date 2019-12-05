@@ -111,7 +111,7 @@ func parsePrimary(lex *lexer) Expr {
 		}
 		lex.next() // consume ')'
 		if id == "min" {
-			return min{ args}
+			return min{args}
 		}
 		return call{id, args}
 

@@ -8,7 +8,7 @@ import (
 
 func main() {
 	var n int
-	flag.IntVar(&n,  "n", 100, "number of goroutines")
+	flag.IntVar(&n, "n", 100, "number of goroutines")
 	flag.Parse()
 	var r, w chan struct{}
 
@@ -25,7 +25,7 @@ func main() {
 	}
 	fmt.Println("end prepare")
 	t := time.Now()
-	start<- struct{}{}
+	start <- struct{}{}
 	<-w
 	fmt.Println(n, time.Now().Sub(t))
 }

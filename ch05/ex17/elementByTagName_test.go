@@ -7,22 +7,22 @@ import (
 )
 
 func TestElementByTagName(t *testing.T) {
-	data := []struct{
-		s string
-		tagname []string
-		len int
+	data := []struct {
+		s         string
+		tagname   []string
+		len       int
 		explected []string
 	}{
 		{
-			s: `<div id="container"><p id="caption">caption</p></div>`,
-			tagname: []string{"p"},
-			len: 2,
+			s:         `<div id="container"><p id="caption">caption</p></div>`,
+			tagname:   []string{"p"},
+			len:       2,
 			explected: []string{"p", "p"},
 		},
 		{
-			s: `<div id="container"><a href="#"><img src="hoge.png" /></a></div>`,
-			tagname: []string{"img", "a"},
-			len: 4,
+			s:         `<div id="container"><a href="#"><img src="hoge.png" /></a></div>`,
+			tagname:   []string{"img", "a"},
+			len:       4,
 			explected: []string{"a", "img", "img", "a"},
 		},
 	}

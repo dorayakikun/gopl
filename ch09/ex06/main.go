@@ -20,9 +20,9 @@ func main() {
 		for px := 0; px < width; px++ {
 			x := float64(px)/width*(xmax-xmin) + xmin
 			z := complex(x, y)
-			go func(px,py int, z complex128){
+			go func(px, py int, z complex128) {
 				img.Set(px, py, mandelbrot(z))
-			}(px,py,z)
+			}(px, py, z)
 		}
 	}
 	var buffer bytes.Buffer

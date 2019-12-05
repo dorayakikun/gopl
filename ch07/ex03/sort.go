@@ -52,16 +52,16 @@ func branchString(t *tree, depth int) string {
 
 	var sb strings.Builder
 	if t.right != nil {
-		sb.WriteString(branchString(t.right, depth + 1))
+		sb.WriteString(branchString(t.right, depth+1))
 	}
 
-	for i := 0; i < depth; i ++ {
+	for i := 0; i < depth; i++ {
 		sb.WriteString("\t")
 	}
 	sb.WriteString(fmt.Sprintf("%d\n", t.value))
 
 	if t.left != nil {
-		sb.WriteString(branchString(t.left, depth + 1))
+		sb.WriteString(branchString(t.left, depth+1))
 	}
 	return sb.String()
 }

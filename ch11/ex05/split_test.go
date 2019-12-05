@@ -13,9 +13,9 @@ func assertEqual(x, y int) {
 }
 
 func TestSplit(t *testing.T) {
-	tests := []struct{
-		s string
-		sep string
+	tests := []struct {
+		s    string
+		sep  string
 		want int
 	}{
 		{

@@ -29,8 +29,8 @@ func TestIsCyclic(t *testing.T) {
 			true,
 		},
 		{
-				parent{ruby, alice},
-				false,
+			parent{ruby, alice},
+			false,
 		},
 		{
 			[]*person{alice, alice},

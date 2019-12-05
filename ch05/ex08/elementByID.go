@@ -6,7 +6,7 @@ import (
 	"strings"
 )
 
-func ElementByID(doc *html.Node, id string) * html.Node {
+func ElementByID(doc *html.Node, id string) *html.Node {
 	return forEachNode(doc, id, startElement, endElement)
 }
 
@@ -35,7 +35,7 @@ func forEachNode(n *html.Node, id string, pre, post func(n *html.Node, id string
 func startElement(n *html.Node, id string) bool {
 	if n.Type == html.ElementNode {
 		for _, a := range n.Attr {
-			if a.Key == "id" && a.Val == id{
+			if a.Key == "id" && a.Val == id {
 				return true
 			}
 		}
@@ -46,7 +46,7 @@ func startElement(n *html.Node, id string) bool {
 func endElement(n *html.Node, id string) bool {
 	if n.Type == html.ElementNode {
 		for _, a := range n.Attr {
-			if a.Key == "id" && a.Val == id{
+			if a.Key == "id" && a.Val == id {
 				return true
 			}
 		}

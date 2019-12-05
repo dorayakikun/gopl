@@ -120,7 +120,7 @@ func TestDecoder2_Token(t *testing.T) {
 	lex := &lexer{scan: scanner.Scanner{Mode: scanner.GoTokens}}
 	lex.scan.Init(bytes.NewReader([]byte(in)))
 	lex.next()
-	d := &Decoder2{ lex }
+	d := &Decoder2{lex}
 
 	for _, want := range tokens {
 		token, err := d.Token()

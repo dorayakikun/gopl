@@ -153,7 +153,7 @@ func Example_mapstruct() {
 	}
 	//!-account
 	//!+employee
-	employee := map[account]string {
+	employee := map[account]string{
 		account{1, "どらやき"}: "dorayaki",
 		account{2, "きんつば"}: "kintsuba",
 		account{3, "ゆべし"}:  "yubeshi",

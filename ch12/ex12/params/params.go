@@ -40,7 +40,7 @@ func Unpack(req *http.Request, ptr interface{}) error {
 		}
 
 		validator := tag.Get("validate")
-		fields[name] = query { v.Field(i), validator }
+		fields[name] = query{v.Field(i), validator}
 	}
 
 	// Update struct field for each parameter in the request.

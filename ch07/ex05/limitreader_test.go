@@ -7,28 +7,28 @@ import (
 
 func TestReader_Read(t *testing.T) {
 	cases := []struct {
-		s string
-		n int64
+		s    string
+		n    int64
 		want int
-	} {
+	}{
 		{
-			s: "",
-			n: 0,
+			s:    "",
+			n:    0,
 			want: 0,
 		},
 		{
-			s: "a",
-			n: 1,
+			s:    "a",
+			n:    1,
 			want: 1,
 		},
 		{
-			s: "abcdefg",
-			n: 3,
+			s:    "abcdefg",
+			n:    3,
 			want: 3,
 		},
 		{
-			s: "あいうえお",
-			n: 9,
+			s:    "あいうえお",
+			n:    9,
 			want: 9,
 		},
 	}

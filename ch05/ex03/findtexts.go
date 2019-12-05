@@ -17,7 +17,7 @@ func main() {
 	}
 }
 
-func findTexts(texts []string, n * html.Node) []string {
+func findTexts(texts []string, n *html.Node) []string {
 	if n.Type == html.ElementNode && (n.Data != "script" && n.Data != "style") {
 		if c := n.FirstChild; c != nil {
 			if c.Type == html.TextNode {

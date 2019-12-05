@@ -5,29 +5,29 @@ import (
 	"testing"
 )
 
-func TestExpand(t *testing.T)  {
+func TestExpand(t *testing.T) {
 	add := func(r rune) rune { return r + 1 }
 
 	data := []struct {
-		s string
+		s        string
 		expected string
-	} {
+	}{
 		{
-			s: "HAL",
+			s:        "HAL",
 			expected: "",
 		},
 		{
-			s: "HAL$HALHAL",
+			s:        "HAL$HALHAL",
 			expected: "IBMIBM",
 		},
 		{
-			s: "HALHALHAL$",
+			s:        "HALHALHAL$",
 			expected: "",
 		},
 	}
 
 	for _, d := range data {
-		e := expand(d.s, func(s string) string { return strings.Map(add, s)})
+		e := expand(d.s, func(s string) string { return strings.Map(add, s) })
 		if e != d.expected {
 			t.Errorf("e is %s want %s\n", e, d.expected)
 		}

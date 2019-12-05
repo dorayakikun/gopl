@@ -36,10 +36,10 @@ func run(r io.Reader, w io.Writer) error {
 			stack = append(stack, tok.Name.Local) // push
 			for _, a := range tok.Attr {
 				if a.Name.Local == "id" {
-					stack = append(stack, "#" + a.Value)
+					stack = append(stack, "#"+a.Value)
 				}
 				if a.Name.Local == "class" {
-					stack = append(stack, "." + a.Value)
+					stack = append(stack, "."+a.Value)
 				}
 			}
 		case xml.EndElement:

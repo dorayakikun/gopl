@@ -2,21 +2,21 @@ package max
 
 import "testing"
 
-func TestMax(t *testing.T)  {
+func TestMax(t *testing.T) {
 	data := []struct {
-		vals []int
+		vals     []int
 		expected int
 	}{
 		{
-			vals: []int{0, 1, 2, 3, 4, 5, 6},
+			vals:     []int{0, 1, 2, 3, 4, 5, 6},
 			expected: 6,
 		},
 		{
-			vals: []int{},
+			vals:     []int{},
 			expected: 0,
 		},
 		{
-			vals: []int{-1, -2, -3, -4, -5, -6},
+			vals:     []int{-1, -2, -3, -4, -5, -6},
 			expected: -1,
 		},
 	}
@@ -29,25 +29,25 @@ func TestMax(t *testing.T)  {
 	}
 }
 
-func TestMax2(t *testing.T)  {
+func TestMax2(t *testing.T) {
 	data := []struct {
-		val int
-		vals []int
+		val      int
+		vals     []int
 		expected int
 	}{
 		{
-			val: 1,
-			vals: []int{0, 1, 2, 3, 4, 5, 6},
+			val:      1,
+			vals:     []int{0, 1, 2, 3, 4, 5, 6},
 			expected: 6,
 		},
 		{
-			val: 0,
-			vals: []int{},
+			val:      0,
+			vals:     []int{},
 			expected: 0,
 		},
 		{
-			val: -8,
-			vals: []int{-1, -2, -3, -4, -5, -6},
+			val:      -8,
+			vals:     []int{-1, -2, -3, -4, -5, -6},
 			expected: -1,
 		},
 	}

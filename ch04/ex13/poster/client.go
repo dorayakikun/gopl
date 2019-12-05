@@ -11,7 +11,7 @@ import (
 )
 
 func FetchMovie(apikey string, keyword string) (*Movie, error) {
-	resp , err := http.Get(fmt.Sprintf("https://www.omdbapi.com/?apikey=%s&t=%s", apikey, url.QueryEscape(keyword)))
+	resp, err := http.Get(fmt.Sprintf("https://www.omdbapi.com/?apikey=%s&t=%s", apikey, url.QueryEscape(keyword)))
 
 	defer resp.Body.Close()
 	if err != nil {

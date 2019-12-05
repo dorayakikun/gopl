@@ -6,9 +6,9 @@ import (
 )
 
 var prereqs = map[string]map[string]bool{
-	"algorithms": {"data structures": true},
-	"calculus":   {"linear algebra": true},
-	"linear algebra":   {"calculus": true},
+	"algorithms":     {"data structures": true},
+	"calculus":       {"linear algebra": true},
+	"linear algebra": {"calculus": true},
 
 	"compilers": {
 		"data structures":       true,

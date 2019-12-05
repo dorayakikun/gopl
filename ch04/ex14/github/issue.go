@@ -23,7 +23,7 @@ type IssuesResult struct {
 	Issues []*Issue
 }
 
-func FetchIssues(owner string, repo string) (IssuesResult, error){
+func FetchIssues(owner string, repo string) (IssuesResult, error) {
 	url := fmt.Sprintf("https://api.github.com/repos/%s/%s/issues", owner, repo)
 	fmt.Printf("GET %s\n", url)
 	resp, err := http.Get(url)

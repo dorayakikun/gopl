@@ -73,6 +73,7 @@ func TestMapIntSet_Clear(t *testing.T) {
 
 var seed = time.Now().UnixNano()
 var out MapIntSet
+
 func BenchmarkIntSet_Add(b *testing.B) {
 	var x MapIntSet
 	for i := 0; i < b.N; i++ {

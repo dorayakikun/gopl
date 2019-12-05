@@ -28,7 +28,7 @@ func main() {
 	// create message
 	cm := create.String("m", "", "message")
 	// create labels
-	cl := create.String("l", "","labels")
+	cl := create.String("l", "", "labels")
 
 	get := flag.NewFlagSet("get", flag.ExitOnError)
 
@@ -36,7 +36,7 @@ func main() {
 	// edit message
 	em := edit.String("m", "", "message")
 	// edit labels
-	el := edit.String( "l", "", "labels")
+	el := edit.String("l", "", "labels")
 
 	close := flag.NewFlagSet("close", flag.ExitOnError)
 

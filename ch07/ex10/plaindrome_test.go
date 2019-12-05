@@ -34,9 +34,9 @@ func TestIsPalindrome(t *testing.T) {
 
 type text []rune
 
-func (t text) Len() int { return len(t) }
+func (t text) Len() int           { return len(t) }
 func (t text) Less(i, j int) bool { return t[i] < t[j] }
-func (t text) Swap(i, j int) { t[i], t[j] = t[j], t[i] }
+func (t text) Swap(i, j int)      { t[i], t[j] = t[j], t[i] }
 
 func TestIsPalindrome2(t *testing.T) {
 	cases := []struct {

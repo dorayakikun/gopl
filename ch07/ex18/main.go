@@ -67,7 +67,7 @@ func printNode(w io.Writer, node Node, prefix string) {
 	case *Element:
 		fmt.Fprintf(w, "%s<%s>\n", prefix, n.Type.Local)
 		for _, child := range n.Children {
-			printNode(w, child, "  " + prefix)
+			printNode(w, child, "  "+prefix)
 		}
 		fmt.Fprintf(w, "%s</%s>\n", prefix, n.Type.Local)
 	case CharData:

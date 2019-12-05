@@ -111,7 +111,7 @@ func encode(buf *bytes.Buffer, v reflect.Value) error {
 			return errors.Wrap(err, "reflect.Interface failed")
 		}
 		fmt.Fprint(buf, ")")
- 	default:
+	default:
 		return fmt.Errorf("unsupported type: %s", v.Type())
 	}
 	return nil

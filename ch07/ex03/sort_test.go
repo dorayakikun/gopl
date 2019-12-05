@@ -18,10 +18,10 @@ func TestSort(t *testing.T) {
 }
 
 func TestTree_String(t *testing.T) {
-	cases := []struct{
+	cases := []struct {
 		data []int
 		want string
-	} {
+	}{
 		{
 			data: []int(nil),
 			want: "",
@@ -33,32 +33,32 @@ func TestTree_String(t *testing.T) {
 		{
 			data: []int{0, 1, 2},
 			/**
-						2
-					1
-				0
-			 */
+					2
+				1
+			0
+			*/
 			want: "\t\t2\n\t1\n0\n",
 		},
 		{
 			data: []int{0, -1, -2},
 			/**
-				0
-					-1
-						-2
+			0
+				-1
+					-2
 			*/
 			want: "0\n\t-1\n\t\t-2\n",
 		},
 		{
 			data: []int{0, -1, -2, 2, 3, 6, 5, 7},
 			/**
-								7
-							6
-								5
-						3
-					2
-				0
-					-1
-						-2
+							7
+						6
+							5
+					3
+				2
+			0
+				-1
+					-2
 			*/
 			want: "\t\t\t\t7\n\t\t\t6\n\t\t\t\t5\n\t\t3\n\t2\n0\n\t-1\n\t\t-2\n",
 		},

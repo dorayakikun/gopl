@@ -51,9 +51,9 @@ var depth int
 func startElement(w io.Writer, n *html.Node) {
 	if n.Type == html.ElementNode {
 		if n.FirstChild == nil {
-			fmt.Fprintf(w,"%*s<%s%s/>\n", depth*2, "", n.Data, attrstring(n.Attr))
+			fmt.Fprintf(w, "%*s<%s%s/>\n", depth*2, "", n.Data, attrstring(n.Attr))
 		} else {
-			fmt.Fprintf(w,"%*s<%s%s>\n", depth*2, "", n.Data, attrstring(n.Attr))
+			fmt.Fprintf(w, "%*s<%s%s>\n", depth*2, "", n.Data, attrstring(n.Attr))
 		}
 		depth++
 	}
@@ -65,7 +65,7 @@ func endElement(w io.Writer, n *html.Node) {
 		if n.FirstChild == nil {
 			return
 		}
-		fmt.Fprintf(w,"%*s</%s>\n", depth*2, "", n.Data)
+		fmt.Fprintf(w, "%*s</%s>\n", depth*2, "", n.Data)
 	}
 }
 

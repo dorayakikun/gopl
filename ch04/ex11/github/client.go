@@ -11,7 +11,7 @@ import (
 const BaseURL = "https://api.github.com"
 
 // POST /repos/:owner/:repo/issues
-func PostIssue(owner string, repo string, token string, issue *PostIssueParameter) (error){
+func PostIssue(owner string, repo string, token string, issue *PostIssueParameter) error {
 	url := fmt.Sprintf("%s/repos/%s/%s/issues", BaseURL, owner, repo)
 
 	buf, err := json.Marshal(issue)
@@ -52,7 +52,7 @@ func PostIssue(owner string, repo string, token string, issue *PostIssueParamete
 }
 
 // GET GET /repos/:owner/:repo/issues/:issue_number
-func GetIssue(owner string, repo string, issueNumber string, token string) (error){
+func GetIssue(owner string, repo string, issueNumber string, token string) error {
 	url := fmt.Sprintf("%s/repos/%s/%s/issues/%s", BaseURL, owner, repo, issueNumber)
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
@@ -88,7 +88,7 @@ func GetIssue(owner string, repo string, issueNumber string, token string) (erro
 }
 
 // PATCH /repos/:owner/:repo/issues/:issue_number
-func PatchIssue(owner string, repo string, issueNumber string, token string, issue *PatchIssueParameter) (error){
+func PatchIssue(owner string, repo string, issueNumber string, token string, issue *PatchIssueParameter) error {
 	url := fmt.Sprintf("%s/repos/%s/%s/issues/%s", BaseURL, owner, repo, issueNumber)
 
 	buf, err := json.Marshal(issue)

@@ -46,11 +46,11 @@ func (lhs *ComplexBigFloat) Mul(rhs *ComplexBigFloat) *ComplexBigFloat {
 		Real: new(big.Float).Sub(
 			new(big.Float).Mul(a, c),
 			new(big.Float).Mul(b, d),
-			),
+		),
 		Imag: new(big.Float).Add(
 			new(big.Float).Mul(b, c),
 			new(big.Float).Mul(a, d),
-			)}
+		)}
 }
 func (lhs *ComplexBigFloat) Div(rhs *ComplexBigFloat) *ComplexBigFloat {
 	/**
