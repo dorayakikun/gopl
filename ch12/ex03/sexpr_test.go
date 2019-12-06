@@ -98,20 +98,4 @@ func Test(t *testing.T) {
 		t.Fatal(err)
 	}
 	t.Logf("Marshal() = %s\n", data)
-
-	// chan
-	c := make(chan map[string]string)
-	data, err = Marshal(c)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("Marshal() = %s\n", data)
-
-	// chan
-	f := func(a int, b int, message string) string { return "" }
-	data, err = Marshal(f)
-	if err != nil {
-		t.Fatal(err)
-	}
-	t.Logf("Marshal() = %s\n", data)
 }
