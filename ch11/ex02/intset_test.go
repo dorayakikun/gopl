@@ -65,16 +65,16 @@ func TestIntSet_Add(t *testing.T) {
 	}
 
 	var x IntSet
-	y := make(map[int]bool)
+	var y IntMapSet
 
 	for _, test := range tests {
 		for _, i := range test.ints {
 			x.Add(i)
-			y[i] = true
+			y.Add(i)
 		}
 
 		for _, i := range test.ints {
-			if x.Has(i) != y[i] {
+			if x.Has(i) != y.Has(i) {
 				t.Errorf("unmatch x: %s y: %v", x.String(), y)
 			}
 		}
