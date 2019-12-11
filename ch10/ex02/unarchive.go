@@ -1,6 +1,7 @@
 package unarchive
 
 import (
+	"compressor/zip"
 	"errors"
 	"os"
 )
@@ -15,5 +16,7 @@ type ReadCloser interface {
 }
 
 func OpenReader(name string) (ReadCloser, error) {
-	return nil, errors.New("unimplemented")
+	uz := &zip.UnarchiveZip{}
+
+	return uz, errors.New("unimplmented")
 }

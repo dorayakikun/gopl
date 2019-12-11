@@ -35,7 +35,6 @@ func unarchive(name string) {
 			}
 			break
 		}
-
 		if !f.FileInfo().IsDir() {
 			fl, err := f.Open()
 			if err != nil {
